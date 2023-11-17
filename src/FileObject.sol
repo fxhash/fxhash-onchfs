@@ -93,11 +93,6 @@ contract FileObject {
         }
     }
 
-    function calculateChecksum(bytes memory data1, bytes memory data2) private pure returns (bytes32) {
-        bytes memory allData = abi.encodePacked(data1, data2);
-        return keccak256(allData);
-    }
-
     function hashNames(string[] memory names) private pure returns (bytes32[] memory) {
         uint256 length = names.length;
         bytes32[] memory hashedNames = new bytes32[](length);
