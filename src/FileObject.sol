@@ -113,8 +113,8 @@ contract FileObject {
     }
 
     function verifyNotIncludes(string memory str, string memory charset) private pure {
-        for (uint i = 0; i < bytes(str).length; i++) {
-            for (uint j = 0; j < bytes(charset).length; j++) {
+        for (uint256 i = 0; i < bytes(str).length; i++) {
+            for (uint256 j = 0; j < bytes(charset).length; j++) {
                 require(bytes(str)[i] != bytes(charset)[j], "String contains a forbidden character");
             }
         }
