@@ -29,6 +29,9 @@ contract FileObject {
         Directory directory;
     }
 
+    // Forbidden characters
+    string private constant FORBIDDEN_CHARS = ":/?#[]@!$&'()*+,;=";
+
     // Define the mapping of inodes
     mapping(bytes32 => Inode) internal inodes;
 
@@ -41,6 +44,7 @@ contract FileObject {
 
     // Function to create a file
     function createFile(bytes memory metadata, bytes32[] memory chunkPointers) public {
+        verifyNotIncludes(string(metadata), FORBIDDEN_CHARS);
         bytes memory allChunkPointers = abi.encodePacked(chunkPointers);
 
         bytes32 checksum = keccak256(abi.encodePacked(bytes1(0x01), keccak256(allChunkPointers), keccak256(metadata)));
@@ -56,6 +60,7 @@ contract FileObject {
         require(length == inodePointers.length, "Mismatch in lengths of names and inodePointers");
         bytes32[] memory hashedNames = new bytes32[](length);
         for (uint256 i; i < length; i++) {
+            verifyNotIncludes(names[i], FORBIDDEN_CHARS);
             hashedNames[i] = keccak256(bytes(names[i]));
         }
 
@@ -76,6 +81,14 @@ contract FileObject {
             return inode.file.metadata.length != 0 || inode.file.chunkPointers.length != 0;
         } else {
             return inode.directory.names.length != 0 || inode.directory.inodePointers.length != 0;
+        }
+    }
+
+    function verifyNotIncludes(string memory str, string memory charset) private pure {
+        for (uint i = 0; i < bytes(str).length; i++) {
+            for (uint j = 0; j < bytes(charset).length; j++) {
+                require(bytes(str)[i] != bytes(charset)[j], "String contains a forbidden character");
+            }
         }
     }
 }
