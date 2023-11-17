@@ -71,11 +71,11 @@ contract FileObject {
 
     // Function to check if an inode exists
     function inodeExists(bytes32 checksum) public view returns (bool) {
-        // In Solidity, an uninitialized struct has all its fields set to their default values
-        // So, we can check if a file or directory exists by checking if both its fields are default
         Inode memory inode = inodes[checksum];
-        return
-            inode.inodeType == InodeType.File ||
-            (inode.file.metadata.length != 0 || inode.file.chunkPointers.length != 0);
+        if (inode.inodeType == InodeType.File) {
+            return inode.file.metadata.length != 0 || inode.file.chunkPointers.length != 0;
+        } else {
+            return inode.directory.names.length != 0 || inode.directory.inodePointers.length != 0;
+        }
     }
 }
