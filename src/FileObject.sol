@@ -31,23 +31,28 @@ contract FileObject {
     mapping(bytes32 => Inode) internal inodes;
     ContentStore public contentStore;
 
+    // Custom errors
+    error ForbiddenCharacter();
+    error InodeAlreadyExists();
+    error InodeNotFound();
+    error InodeMismatch();
+
     constructor(address _contentStore) {
         contentStore = ContentStore(_contentStore);
     }
 
     function createFile(bytes memory metadata, bytes32[] memory chunkPointers) public {
-        verifyNotIncludes(string(metadata), FORBIDDEN_CHARS);
-
+        if (verifyNotIncludes(string(metadata), FORBIDDEN_CHARS)) revert ForbiddenCharacter();
         bytes32 checksum = keccak256(
             bytes.concat(bytes1(0x01), keccak256(abi.encodePacked(chunkPointers)), keccak256(metadata))
         );
-        require(!inodeExists(checksum), "Inode already exists");
+        if (inodeExists(checksum)) revert InodeAlreadyExists();
         File memory newFile = File(metadata, chunkPointers);
         inodes[checksum] = Inode(InodeType.File, newFile, Directory(new string[](0), new bytes32[](0)));
     }
 
     function createDirectory(string[] memory names, bytes32[] memory inodePointers) public {
-        require(names.length == inodePointers.length, "Mismatch in lengths of names and inodePointers");
+        if (names.length != inodePointers.length) revert InodeMismatch();
         bytes32[] memory hashedNames = hashNames(names);
 
         bytes32 checksum = keccak256(
@@ -57,22 +62,22 @@ contract FileObject {
                 keccak256(abi.encodePacked(inodePointers))
             )
         );
-        require(!inodeExists(checksum), "Inode already exists");
+        if (inodeExists(checksum)) revert InodeAlreadyExists();
         Directory memory newDirectory = Directory(names, inodePointers);
         inodes[checksum] = Inode(InodeType.Directory, File("", new bytes32[](0)), newDirectory);
     }
 
     function readFile(bytes32 checksum) public view returns (bytes memory) {
-        require(inodeExists(checksum), "Inode not found");
+        if (!inodeExists(checksum)) revert InodeNotFound();
         Inode memory inode = inodes[checksum];
-        require(inode.inodeType == InodeType.File, "Inode is not a file");
+        if (inode.inodeType != InodeType.File) revert InodeNotFound();
         return concatenateChunks(inode.file.chunkPointers);
     }
 
     function readDirectory(bytes32 checksum) public view returns (string[] memory, bytes32[] memory) {
-        require(inodeExists(checksum), "Inode not found");
+        if (!inodeExists(checksum)) revert InodeNotFound();
         Inode memory inode = inodes[checksum];
-        require(inode.inodeType == InodeType.Directory, "Inode is not a directory");
+        if (inode.inodeType != InodeType.Directory) revert InodeNotFound();
         return (inode.directory.names, inode.directory.inodePointers);
     }
 
@@ -85,19 +90,22 @@ contract FileObject {
         }
     }
 
-    function verifyNotIncludes(string memory str, string memory charset) private pure {
+    function verifyNotIncludes(string memory str, string memory charset) private pure returns (bool) {
         for (uint256 i = 0; i < bytes(str).length; i++) {
             for (uint256 j = 0; j < bytes(charset).length; j++) {
-                require(bytes(str)[i] != bytes(charset)[j], "String contains a forbidden character");
+                if (bytes(str)[i] == bytes(charset)[j]) {
+                    return false;
+                }
             }
         }
+        return true;
     }
 
     function hashNames(string[] memory names) private pure returns (bytes32[] memory) {
         uint256 length = names.length;
         bytes32[] memory hashedNames = new bytes32[](length);
         for (uint256 i; i < length; i++) {
-            verifyNotIncludes(names[i], FORBIDDEN_CHARS);
+            if (!verifyNotIncludes(names[i], FORBIDDEN_CHARS)) revert ForbiddenCharacter();
             hashedNames[i] = keccak256(bytes(names[i]));
         }
         return hashedNames;
