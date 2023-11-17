@@ -2,6 +2,7 @@
 pragma solidity ^0.8.22;
 
 import {ContentStore} from "ethfs/packages/contracts/src/ContentStore.sol";
+import {SSTORE2} from "sstore2/SSTORE2.sol";
 
 contract FileObject {
     // Define the structure of a file
@@ -82,6 +83,33 @@ contract FileObject {
         } else {
             return inode.directory.names.length != 0 || inode.directory.inodePointers.length != 0;
         }
+    }
+
+    function readFile(bytes32 checksum) public view returns (bytes memory) {
+        require(inodeExists(checksum), "Inode not found");
+        Inode memory inode = inodes[checksum];
+        require(inode.inodeType == InodeType.File, "Inode is not a file");
+
+        bytes memory fileContent;
+        bytes32 chunkChecksum;
+        address pointer;
+        bytes memory chunkContent;
+        for (uint256 i = 0; i < inode.file.chunkPointers.length; i++) {
+            chunkChecksum = inode.file.chunkPointers[i];
+            pointer = contentStore.getPointer(chunkChecksum);
+            chunkContent = SSTORE2.read(pointer);
+            fileContent = abi.encodePacked(fileContent, chunkContent);
+        }
+
+        return fileContent;
+    }
+
+    function readDirectory(bytes32 checksum) public view returns (string[] memory, bytes32[] memory) {
+        require(inodeExists(checksum), "Inode not found");
+        Inode memory inode = inodes[checksum];
+        require(inode.inodeType == InodeType.Directory, "Inode is not a directory");
+
+        return (inode.directory.names, inode.directory.inodePointers);
     }
 
     function verifyNotIncludes(string memory str, string memory charset) private pure {

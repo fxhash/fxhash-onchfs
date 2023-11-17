@@ -4,3 +4,6 @@
 [submodule "lib/ethfs"]
 	path = lib/ethfs
 	url = https://github.com/holic/ethfs
+[submodule "lib/sstore2"]
+	path = lib/sstore2
+	url = https://github.com/0xsequence/sstore2
