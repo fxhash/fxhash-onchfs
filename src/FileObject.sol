@@ -39,7 +39,7 @@ contract FileObject {
         verifyNotIncludes(string(metadata), FORBIDDEN_CHARS);
 
         bytes32 checksum = keccak256(
-            bytes.conat(bytes1(0x01), keccak256(bytes.concat(chunkPointers)), keccak256(metadata))
+            bytes.concat(bytes1(0x01), keccak256(abi.encodePacked(chunkPointers)), keccak256(metadata))
         );
         require(!inodeExists(checksum), "Inode already exists");
         File memory newFile = File(metadata, chunkPointers);
@@ -51,7 +51,11 @@ contract FileObject {
         bytes32[] memory hashedNames = hashNames(names);
 
         bytes32 checksum = keccak256(
-            bytes.conat(bytes1(0x00), keccak256(bytes.concat(hashedNames)), keccak256(bytes.concat(inodePointers)))
+            bytes.concat(
+                bytes1(0x00),
+                keccak256(abi.encodePacked(hashedNames)),
+                keccak256(abi.encodePacked(inodePointers))
+            )
         );
         require(!inodeExists(checksum), "Inode already exists");
         Directory memory newDirectory = Directory(names, inodePointers);
