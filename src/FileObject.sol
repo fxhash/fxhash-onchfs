@@ -41,9 +41,9 @@ contract FileObject {
 
     // Function to create a file
     function createFile(bytes memory metadata, bytes32[] memory chunkPointers) public {
-        bytes32 checksum = keccak256(
-            abi.encode(keccak256(abi.encode(chunkPointers)), keccak256(abi.encode(metadata)), bytes1(0x01))
-        );
+        bytes memory allChunkPointers = abi.encodePacked(chunkPointers);
+
+        bytes32 checksum = keccak256(abi.encodePacked(bytes1(0x01), keccak256(allChunkPointers), keccak256(metadata)));
         require(!inodeExists(checksum), "Inode already exists");
 
         File memory newFile = File(metadata, chunkPointers);
@@ -52,9 +52,17 @@ contract FileObject {
 
     // Function to create a directory
     function createDirectory(string[] memory names, bytes32[] memory inodePointers) public {
-        require(names.length == inodePointers.length, "Mismatch in lengths of names and inodePointers");
+        uint256 length = names.length;
+        require(length == inodePointers.length, "Mismatch in lengths of names and inodePointers");
+        bytes32[] memory hashedNames = new bytes32[](length);
+        for (uint256 i; i < length; i++) {
+            hashedNames[i] = keccak256(bytes(names[i]));
+        }
 
-        bytes32 checksum = keccak256(abi.encode(names, inodePointers, bytes1(0x00)));
+        bytes memory allNames = abi.encodePacked(hashedNames);
+        bytes memory allInodePointers = abi.encodePacked(inodePointers);
+
+        bytes32 checksum = keccak256(abi.encodePacked(bytes1(0x00), keccak256(allNames), keccak256(allInodePointers)));
         require(!inodeExists(checksum), "Inode already exists");
 
         Directory memory newDirectory = Directory(names, inodePointers);
