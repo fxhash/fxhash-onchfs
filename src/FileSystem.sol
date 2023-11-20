@@ -4,7 +4,9 @@ pragma solidity 0.8.23;
 import {SSTORE2} from "sstore2/SSTORE2.sol";
 
 import {IContentStore} from "ethfs/packages/contracts/src/IContentStore.sol";
-import {IFileSystem, Directory, File, Inode, InodeType, FORBIDDEN_CHARS} from "src/interfaces/IFileSystem.sol";
+import {IFileSystem, Directory, File, Inode, InodeType} from "src/interfaces/IFileSystem.sol";
+
+import "src/utils/Constants.sol";
 
 /**
  * @title FileSystem
@@ -47,7 +49,7 @@ contract FileSystem is IFileSystem {
     function createFile(bytes memory _metadata, bytes32[] memory _chunkPointers) external {
         if (_containsForbiddenCharacters(string(_metadata), FORBIDDEN_CHARS)) revert InvalidCharacter();
         bytes32 checksum = keccak256(
-            bytes.concat(bytes1(0x01), keccak256(abi.encodePacked(_chunkPointers)), keccak256(_metadata))
+            bytes.concat(METADATA_TYPE, keccak256(abi.encodePacked(_chunkPointers)), keccak256(_metadata))
         );
         if (inodeExists(checksum)) revert InodeAlreadyExists();
         File memory newFile = File(_metadata, _chunkPointers);
@@ -57,19 +59,18 @@ contract FileSystem is IFileSystem {
     /**
      * @inheritdoc IFileSystem
      */
-    function createDirectory(string[] memory _names, bytes32[] memory _fileInodePointers) external {
-        if (_names.length != _fileInodePointers.length) revert LengthMismatch();
+    function createDirectory(string[] memory _names, bytes32[] memory _filePointers) external {
+        if (_names.length != _filePointers.length) revert LengthMismatch();
         bytes32[] memory hashedNames = hashNames(_names);
-
         bytes32 checksum = keccak256(
             bytes.concat(
-                bytes1(0x00),
+                METADATA_TYPE,
                 keccak256(abi.encodePacked(hashedNames)),
-                keccak256(abi.encodePacked(_fileInodePointers))
+                keccak256(abi.encodePacked(_filePointers))
             )
         );
         if (inodeExists(checksum)) revert InodeAlreadyExists();
-        Directory memory newDirectory = Directory(_names, _fileInodePointers);
+        Directory memory newDirectory = Directory(_names, _filePointers);
         inodes_[checksum] = Inode(InodeType.Directory, File("", new bytes32[](0)), newDirectory);
     }
 
@@ -101,12 +102,10 @@ contract FileSystem is IFileSystem {
      * @inheritdoc IFileSystem
      */
     function concatenateChunks(bytes32[] memory _pointers) public view returns (bytes memory fileContent) {
-        bytes32 checksum;
         address pointer;
         bytes memory chunkContent;
         for (uint256 i; i < _pointers.length; i++) {
-            checksum = _pointers[i];
-            pointer = IContentStore(contentStore).getPointer(checksum);
+            pointer = IContentStore(contentStore).getPointer(_pointers[i]);
             chunkContent = SSTORE2.read(pointer);
             fileContent = abi.encodePacked(fileContent, chunkContent);
         }

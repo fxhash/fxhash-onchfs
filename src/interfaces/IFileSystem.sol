@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
 
-string constant FORBIDDEN_CHARS = ":/?#[]@!$&'()*+,;=";
-
 enum InodeType {
     File,
     Directory
@@ -90,9 +88,9 @@ interface IFileSystem {
     /**
      * @notice Creates a new directory with the given names and file inode pointers
      * @param _names List of file names in the directory
-     * @param _fileInodePointers Pointers to the file inodes in the directory
+     * @param _filePointers Pointers to the file inodes in the directory
      */
-    function createDirectory(string[] memory _names, bytes32[] memory _fileInodePointers) external;
+    function createDirectory(string[] memory _names, bytes32[] memory _filePointers) external;
 
     /**
      * @notice Hashes a list of file names in the directory

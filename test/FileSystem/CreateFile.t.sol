@@ -19,7 +19,7 @@ contract CreateFile is FileSystemTest {
     function test_CreateFile() public {
         fileSystem.createFile(metadata, chunkPointers);
         checksum = keccak256(
-            abi.encodePacked(bytes1(0x01), keccak256(abi.encodePacked(chunkPointers)), keccak256(metadata))
+            abi.encodePacked(METADATA_TYPE, keccak256(abi.encodePacked(chunkPointers)), keccak256(metadata))
         );
         assertTrue(fileSystem.inodeExists(checksum));
     }

@@ -23,7 +23,7 @@ contract CreateDirectory is FileSystemTest {
         hashedNames = fileSystem.hashNames(fileNames);
         checksum = keccak256(
             abi.encodePacked(
-                bytes1(0x00),
+                METADATA_TYPE,
                 keccak256(abi.encodePacked(hashedNames)),
                 keccak256(abi.encodePacked(filePointers))
             )
