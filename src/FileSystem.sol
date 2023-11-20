@@ -59,9 +59,9 @@ contract FileSystem is IFileSystem {
     /**
      * @inheritdoc IFileSystem
      */
-    function createDirectory(string[] memory _names, bytes32[] memory _filePointers) external {
-        if (_names.length != _filePointers.length) revert LengthMismatch();
-        bytes32[] memory hashedNames = hashNames(_names);
+    function createDirectory(string[] memory _fileNames, bytes32[] memory _filePointers) external {
+        if (_fileNames.length != _filePointers.length) revert LengthMismatch();
+        bytes32[] memory hashedNames = hashNames(_fileNames);
         bytes32 checksum = keccak256(
             bytes.concat(
                 METADATA_TYPE,
@@ -70,8 +70,8 @@ contract FileSystem is IFileSystem {
             )
         );
         if (inodeExists(checksum)) revert InodeAlreadyExists();
-        Directory memory newDirectory = Directory(_names, _filePointers);
-        inodes_[checksum] = Inode(InodeType.Directory, File("", new bytes32[](0)), newDirectory);
+        Directory memory newDirectory = Directory(_fileNames, _filePointers);
+        inodes_[checksum] = Inode(InodeType.Directory, File(bytes(""), new bytes32[](0)), newDirectory);
     }
 
     /**
@@ -81,7 +81,7 @@ contract FileSystem is IFileSystem {
         if (!inodeExists(_checksum)) revert InodeNotFound();
         Inode memory inode = inodes_[_checksum];
         if (inode.inodeType != InodeType.Directory) revert DirectoryNotFound();
-        return (inode.directory.names, inode.directory.fileInodePointers);
+        return (inode.directory.fileNames, inode.directory.filePointers);
     }
 
     /**
@@ -114,12 +114,12 @@ contract FileSystem is IFileSystem {
     /**
      * @inheritdoc IFileSystem
      */
-    function hashNames(string[] memory _names) public pure returns (bytes32[] memory hashedNames) {
-        uint256 length = _names.length;
+    function hashNames(string[] memory _fileNames) public pure returns (bytes32[] memory hashedNames) {
+        uint256 length = _fileNames.length;
         hashedNames = new bytes32[](length);
         for (uint256 i; i < length; i++) {
-            if (_containsForbiddenCharacters(_names[i], FORBIDDEN_CHARS)) revert InvalidCharacter();
-            hashedNames[i] = keccak256(bytes(_names[i]));
+            if (_containsForbiddenCharacters(_fileNames[i], FORBIDDEN_CHARS)) revert InvalidCharacter();
+            hashedNames[i] = keccak256(bytes(_fileNames[i]));
         }
     }
 
@@ -128,10 +128,12 @@ contract FileSystem is IFileSystem {
      */
     function inodeExists(bytes32 _checksum) public view returns (bool) {
         Inode memory inode = inodes_[_checksum];
+        File memory file = inode.file;
+        Directory memory directory = inode.directory;
         if (inode.inodeType == InodeType.File) {
-            return inode.file.metadata.length != 0 || inode.file.chunkPointers.length != 0;
+            return file.metadata.length != 0 || file.chunkPointers.length != 0;
         } else {
-            return inode.directory.names.length != 0 || inode.directory.fileInodePointers.length != 0;
+            return directory.fileNames.length != 0 || directory.filePointers.length != 0;
         }
     }
 

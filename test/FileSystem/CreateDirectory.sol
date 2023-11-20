@@ -5,8 +5,8 @@ import "test/FileSystem/FileSystemTest.t.sol";
 
 contract CreateDirectory is FileSystemTest {
     bytes32[] internal hashedNames;
-    bytes32[] internal readPointers;
-    string[] internal readNames;
+    bytes32[] internal pointers;
+    string[] internal names;
 
     function setUp() public override {
         super.setUp();
@@ -33,13 +33,13 @@ contract CreateDirectory is FileSystemTest {
 
     function test_ReadDirectory() public {
         test_CreateDirectory();
-        (readNames, readPointers) = fileSystem.readDirectory(checksum);
-        assertEq(readNames.length, fileNames.length);
-        assertEq(readPointers.length, filePointers.length);
+        (names, pointers) = fileSystem.readDirectory(checksum);
+        assertEq(names.length, fileNames.length);
+        assertEq(pointers.length, filePointers.length);
 
-        for (uint256 i; i < readNames.length; i++) {
-            assertEq(readNames[i], fileNames[i]);
-            assertEq(readPointers[i], filePointers[i]);
+        for (uint256 i; i < names.length; i++) {
+            assertEq(names[i], fileNames[i]);
+            assertEq(pointers[i], filePointers[i]);
         }
     }
 }

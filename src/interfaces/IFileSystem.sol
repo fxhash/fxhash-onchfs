@@ -7,8 +7,8 @@ enum InodeType {
 }
 
 struct Directory {
-    string[] names;
-    bytes32[] fileInodePointers;
+    string[] fileNames;
+    bytes32[] filePointers;
 }
 
 struct File {
