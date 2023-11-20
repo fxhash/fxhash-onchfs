@@ -25,7 +25,7 @@ struct Inode {
 /**
  * @title IFileSystem
  * @author fx(hash)
- * @notice System for storing and reading Inodes
+ * @notice System for storing and retrieving files onchain
  */
 interface IFileSystem {
     /*//////////////////////////////////////////////////////////////////////////
