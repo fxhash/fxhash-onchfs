@@ -1,22 +1,34 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.22;
+pragma solidity 0.8.23;
 
-import {Test, console2} from "forge-std/Test.sol";
-import {INodeStore} from "src/INodeStore.sol";
+import "forge-std/Test.sol";
+
 import {ContentStore} from "ethfs/packages/contracts/src/ContentStore.sol";
-import {IContentStore} from "ethfs/packages/contracts/src/IContentStore.sol";
+import {FileSystem} from "src/FileSystem.sol";
+import {MockContentStore} from "test/mocks/MockContentStore.sol";
 import {SSTORE2} from "sstore2/SSTORE2.sol";
 
-contract INodeStoreTest is Test {
-    INodeStore internal nodeStore;
+import {IContentStore} from "ethfs/packages/contracts/src/IContentStore.sol";
+import {IFileSystem} from "src/interfaces/IFileSystem.sol";
+
+contract InodeStoreTest is Test {
+    FileSystem internal nodeStore;
     IContentStore internal contentStore;
+
+    // Errors
+    bytes4 DIRECTORY_NOT_FOUND_ERROR = IFileSystem.DirectoryNotFound.selector;
+    bytes4 FILE_NOT_FOUND_ERROR = IFileSystem.FileNotFound.selector;
+    bytes4 INODE_ALREADY_EXISTS_ERROR = IFileSystem.InodeAlreadyExists.selector;
+    bytes4 INODE_NOT_FOUND_ERROR = IFileSystem.InodeNotFound.selector;
+    bytes4 INVALID_CHARACTER_ERROR = IFileSystem.InvalidCharacter.selector;
+    bytes4 LENGTH_MISMATCH_ERROR = IFileSystem.LengthMismatch.selector;
 
     function setUp() public {
         contentStore = IContentStore(address(new MockContentStore()));
-        nodeStore = new INodeStore(address(contentStore));
+        nodeStore = new FileSystem(address(contentStore));
     }
 
-    function testCreateFile() public {
+    function test_CreateFile() public {
         bytes memory metadata = "file metadata";
         bytes32[] memory chunkPointers = new bytes32[](2);
         chunkPointers[0] = bytes32(uint256(1));
@@ -39,7 +51,7 @@ contract INodeStoreTest is Test {
         // assertEq(fileContent, concatenateChunks(chunkPointers));
     }
 
-    function testCreateDirectory() public {
+    function test_CreateDirectory() public {
         string[] memory names = new string[](2);
         names[0] = "file1";
         names[1] = "file2";
@@ -88,11 +100,5 @@ contract INodeStoreTest is Test {
             fileContent = abi.encodePacked(fileContent, chunkContent);
         }
         return fileContent;
-    }
-}
-
-contract MockContentStore {
-    function getPointer(bytes32 _checksum) external pure returns (address) {
-        return address(uint160(uint256(_checksum)));
     }
 }
