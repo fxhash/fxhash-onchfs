@@ -147,7 +147,7 @@ contract FileSystem is IFileSystem {
     function _containsForbiddenChars(string calldata _characters) private pure returns (bool) {
         uint256 length = bytes(_characters).length;
         for (uint256 i; i < length; i++) {
-            for (uint256 j; j < FORBIDDEN_LENGTH; j++) {
+            for (uint256 j; j < CHARACTER_LEGNTH; j++) {
                 if (bytes(_characters)[i] == bytes(FORBIDDEN_CHARS)[j]) {
                     return true;
                 }
