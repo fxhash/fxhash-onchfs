@@ -55,7 +55,7 @@ interface IFileSystem {
     /**
      * @notice Error thrown when a forbidden character is present
      */
-    error InvalidCharacter();
+    error InvalidCharacters();
 
     /**
      * @notice Error thrown when array lengths do not match
@@ -79,25 +79,25 @@ interface IFileSystem {
     function contentStore() external view returns (address);
 
     /**
+     * @notice Creates a new directory with the given names and file inode pointers
+     * @param _fileNames List of file names in the directory
+     * @param _filePointers Pointers to the file inodes in the directory
+     */
+    function createDirectory(string[] calldata _fileNames, bytes32[] calldata _filePointers) external;
+
+    /**
      * @notice Creates a new file with the given metadata and chunk pointers
      * @param _metadata Metadata of the file
      * @param _chunkPointers Pointers to the file chunks
      */
-    function createFile(bytes memory _metadata, bytes32[] memory _chunkPointers) external;
-
-    /**
-     * @notice Creates a new directory with the given names and file inode pointers
-     * @param _names List of file names in the directory
-     * @param _filePointers Pointers to the file inodes in the directory
-     */
-    function createDirectory(string[] memory _names, bytes32[] memory _filePointers) external;
+    function createFile(bytes calldata _metadata, bytes32[] calldata _chunkPointers) external;
 
     /**
      * @notice Hashes a list of file names in the directory
      * @param _names List of file names
      * @return Hashed names
      */
-    function hashNames(string[] memory _names) external pure returns (bytes32[] memory);
+    function hashNames(string[] calldata _names) external view returns (bytes32[] memory);
 
     /**
      * @notice Reads the content of a directory with the given checksum

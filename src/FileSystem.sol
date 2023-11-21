@@ -46,8 +46,8 @@ contract FileSystem is IFileSystem {
     /**
      * @inheritdoc IFileSystem
      */
-    function createFile(bytes memory _metadata, bytes32[] memory _chunkPointers) external {
-        if (_containsForbiddenCharacters(string(_metadata), FORBIDDEN_CHARS)) revert InvalidCharacter();
+    function createFile(bytes calldata _metadata, bytes32[] calldata _chunkPointers) external {
+        if (_containsForbiddenChars(string(_metadata))) revert InvalidCharacters();
         bytes32 checksum = keccak256(
             bytes.concat(METADATA_TYPE, keccak256(abi.encodePacked(_chunkPointers)), keccak256(_metadata))
         );
@@ -59,7 +59,7 @@ contract FileSystem is IFileSystem {
     /**
      * @inheritdoc IFileSystem
      */
-    function createDirectory(string[] memory _fileNames, bytes32[] memory _filePointers) external {
+    function createDirectory(string[] calldata _fileNames, bytes32[] calldata _filePointers) external {
         if (_fileNames.length != _filePointers.length) revert LengthMismatch();
         bytes32[] memory hashedNames = hashNames(_fileNames);
         bytes32 checksum = keccak256(
@@ -114,11 +114,11 @@ contract FileSystem is IFileSystem {
     /**
      * @inheritdoc IFileSystem
      */
-    function hashNames(string[] memory _fileNames) public pure returns (bytes32[] memory hashedNames) {
+    function hashNames(string[] calldata _fileNames) public pure returns (bytes32[] memory hashedNames) {
         uint256 length = _fileNames.length;
         hashedNames = new bytes32[](length);
         for (uint256 i; i < length; i++) {
-            if (_containsForbiddenCharacters(_fileNames[i], FORBIDDEN_CHARS)) revert InvalidCharacter();
+            if (_containsForbiddenChars(_fileNames[i])) revert InvalidCharacters();
             hashedNames[i] = keccak256(bytes(_fileNames[i]));
         }
     }
@@ -144,15 +144,11 @@ contract FileSystem is IFileSystem {
     /**
      * @dev Checks if the given string contains any forbidden characters
      */
-    function _containsForbiddenCharacters(
-        string memory _checkedChars,
-        string memory _forbiddenChars
-    ) private pure returns (bool) {
-        uint256 checkedCharsLen = bytes(_checkedChars).length;
-        uint256 forbiddenCharsLen = bytes(_forbiddenChars).length;
-        for (uint256 i; i < checkedCharsLen; i++) {
-            for (uint256 j; j < forbiddenCharsLen; j++) {
-                if (bytes(_checkedChars)[i] == bytes(_forbiddenChars)[j]) {
+    function _containsForbiddenChars(string calldata _characters) private pure returns (bool) {
+        uint256 length = bytes(_characters).length;
+        for (uint256 i; i < length; i++) {
+            for (uint256 j; j < FORBIDDEN_LENGTH; j++) {
+                if (bytes(_characters)[i] == bytes(FORBIDDEN_CHARS)[j]) {
                     return true;
                 }
             }
