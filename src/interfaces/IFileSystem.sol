@@ -55,7 +55,7 @@ interface IFileSystem {
     /**
      * @notice Error thrown when a forbidden character is present
      */
-    error InvalidCharacters();
+    error InvalidCharacter();
 
     /**
      * @notice Error thrown when array lengths do not match
