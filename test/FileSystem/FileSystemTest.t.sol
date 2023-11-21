@@ -7,7 +7,6 @@ import "src/utils/Constants.sol";
 import {ContentStore} from "ethfs/packages/contracts/src/ContentStore.sol";
 import {FileSystem} from "src/FileSystem.sol";
 import {MockContentStore} from "test/mocks/MockContentStore.sol";
-import {SSTORE2} from "sstore2/SSTORE2.sol";
 
 import {IContentStore} from "ethfs/packages/contracts/src/IContentStore.sol";
 import {IFileSystem} from "src/interfaces/IFileSystem.sol";
