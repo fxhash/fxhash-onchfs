@@ -24,7 +24,7 @@ contract FileSystem is IFileSystem {
     address public immutable contentStore;
 
     /**
-     * @dev Mapping of checksum to inode struct
+     * @dev Mapping of checksum pointer to Inode struct
      */
     mapping(bytes32 checksum => Inode inode) internal inodes_;
 
@@ -46,19 +46,6 @@ contract FileSystem is IFileSystem {
     /**
      * @inheritdoc IFileSystem
      */
-    function createFile(bytes calldata _metadata, bytes32[] calldata _chunkPointers) external {
-        if (_containsForbiddenChars(string(_metadata))) revert InvalidCharacter();
-        bytes32 checksum = keccak256(
-            bytes.concat(METADATA_TYPE, keccak256(abi.encodePacked(_chunkPointers)), keccak256(_metadata))
-        );
-        if (inodeExists(checksum)) revert InodeAlreadyExists();
-        File memory newFile = File(_metadata, _chunkPointers);
-        inodes_[checksum] = Inode(InodeType.File, newFile, Directory(new string[](0), new bytes32[](0)));
-    }
-
-    /**
-     * @inheritdoc IFileSystem
-     */
     function createDirectory(string[] calldata _fileNames, bytes32[] calldata _filePointers) external {
         if (_fileNames.length != _filePointers.length) revert LengthMismatch();
         bytes32[] memory hashedNames = hashNames(_fileNames);
@@ -72,6 +59,19 @@ contract FileSystem is IFileSystem {
         if (inodeExists(checksum)) revert InodeAlreadyExists();
         Directory memory newDirectory = Directory(_fileNames, _filePointers);
         inodes_[checksum] = Inode(InodeType.Directory, File(bytes(""), new bytes32[](0)), newDirectory);
+    }
+
+    /**
+     * @inheritdoc IFileSystem
+     */
+    function createFile(bytes calldata _metadata, bytes32[] calldata _chunkPointers) external {
+        if (_containsForbiddenChars(string(_metadata))) revert InvalidCharacter();
+        bytes32 checksum = keccak256(
+            bytes.concat(METADATA_TYPE, keccak256(abi.encodePacked(_chunkPointers)), keccak256(_metadata))
+        );
+        if (inodeExists(checksum)) revert InodeAlreadyExists();
+        File memory newFile = File(_metadata, _chunkPointers);
+        inodes_[checksum] = Inode(InodeType.File, newFile, Directory(new string[](0), new bytes32[](0)));
     }
 
     /**
