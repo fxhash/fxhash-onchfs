@@ -46,9 +46,9 @@ contract FileSystem is IFileSystem {
     /**
      * @inheritdoc IFileSystem
      */
-    function createDirectory(string[] calldata _fileNames, bytes32[] calldata _filePointers) external {
-        if (_fileNames.length != _filePointers.length) revert LengthMismatch();
-        bytes32[] memory hashedNames = hashNames(_fileNames);
+    function createDirectory(string[] calldata _path, bytes32[] calldata _filePointers) external {
+        if (_path.length != _filePointers.length) revert LengthMismatch();
+        bytes32[] memory hashedNames = hashPaths(_path);
         bytes32 checksum = keccak256(
             bytes.concat(
                 METADATA_TYPE,
@@ -57,7 +57,7 @@ contract FileSystem is IFileSystem {
             )
         );
         if (inodeExists(checksum)) revert InodeAlreadyExists();
-        Directory memory newDirectory = Directory(_fileNames, _filePointers);
+        Directory memory newDirectory = Directory(_path, _filePointers);
         inodes_[checksum] = Inode(InodeType.Directory, File(bytes(""), new bytes32[](0)), newDirectory);
     }
 
@@ -114,12 +114,12 @@ contract FileSystem is IFileSystem {
     /**
      * @inheritdoc IFileSystem
      */
-    function hashNames(string[] calldata _fileNames) public pure returns (bytes32[] memory hashedNames) {
-        uint256 length = _fileNames.length;
-        hashedNames = new bytes32[](length);
+    function hashPaths(string[] calldata _paths) public pure returns (bytes32[] memory hashedPaths) {
+        uint256 length = _paths.length;
+        hashedPaths = new bytes32[](length);
         for (uint256 i; i < length; i++) {
-            if (_containsForbiddenChars(_fileNames[i])) revert InvalidCharacter();
-            hashedNames[i] = keccak256(bytes(_fileNames[i]));
+            if (_containsForbiddenChars(_paths[i])) revert InvalidCharacter();
+            hashedPaths[i] = keccak256(bytes(_paths[i]));
         }
     }
 

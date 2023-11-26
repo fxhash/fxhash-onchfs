@@ -75,10 +75,10 @@ interface IFileSystem {
 
     /**
      * @notice Hashes a list of file names in the directory
-     * @param _names List of file names
+     * @param _paths List of file names
      * @return Hashed names
      */
-    function hashNames(string[] calldata _names) external view returns (bytes32[] memory);
+    function hashPaths(string[] calldata _paths) external view returns (bytes32[] memory);
 
     /**
      * @notice Reads the content of a directory with the given checksum

@@ -4,7 +4,7 @@ pragma solidity 0.8.23;
 import "test/FileSystem/FileSystemTest.t.sol";
 
 contract CreateDirectory is FileSystemTest {
-    bytes32[] internal hashedNames;
+    bytes32[] internal hashedPaths;
     bytes32[] internal pointers;
     string[] internal names;
 
@@ -20,11 +20,11 @@ contract CreateDirectory is FileSystemTest {
 
     function test_CreateDirectory() public {
         fileSystem.createDirectory(fileNames, filePointers);
-        hashedNames = fileSystem.hashNames(fileNames);
+        hashedPaths = fileSystem.hashPaths(fileNames);
         checksum = keccak256(
             abi.encodePacked(
                 METADATA_TYPE,
-                keccak256(abi.encodePacked(hashedNames)),
+                keccak256(abi.encodePacked(hashedPaths)),
                 keccak256(abi.encodePacked(filePointers))
             )
         );
