@@ -1,26 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
 
-enum InodeType {
-    File,
-    Directory
-}
-
-struct Directory {
-    string[] fileNames;
-    bytes32[] filePointers;
-}
-
-struct File {
-    bytes metadata;
-    bytes32[] chunkPointers;
-}
-
-struct Inode {
-    InodeType inodeType;
-    File file;
-    Directory directory;
-}
+import {Directory, File, Inode, InodeType} from "src/lib/Structs.sol";
 
 /**
  * @title IFileSystem
