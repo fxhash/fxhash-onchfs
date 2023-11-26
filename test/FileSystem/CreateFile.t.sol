@@ -24,12 +24,8 @@ contract CreateFile is FileSystemTest {
         assertTrue(fileSystem.inodeExists(checksum));
     }
 
-    function xtest_ReadFile() public {
+    function test_ReadFile() public {
         test_CreateFile();
-        (fileNames, filePointers) = fileSystem.readDirectory(checksum);
-        assertEq(fileNames.length, 0);
-        assertEq(filePointers.length, 0);
-
         fileContent = fileSystem.readFile(checksum);
         assertEq(fileContent, fileSystem.concatenateChunks(chunkPointers));
     }
