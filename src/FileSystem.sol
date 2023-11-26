@@ -51,7 +51,7 @@ contract FileSystem is IFileSystem {
         bytes32[] memory hashedNames = hashNames(_fileNames);
         bytes32 checksum = keccak256(
             bytes.concat(
-                METADATA_TYPE,
+                bytes1(0x01),
                 keccak256(abi.encodePacked(hashedNames)),
                 keccak256(abi.encodePacked(_filePointers))
             )
@@ -67,7 +67,7 @@ contract FileSystem is IFileSystem {
     function createFile(bytes calldata _metadata, bytes32[] calldata _chunkPointers) external {
         if (_containsForbiddenChars(string(_metadata))) revert InvalidCharacter();
         bytes32 checksum = keccak256(
-            bytes.concat(METADATA_TYPE, keccak256(abi.encodePacked(_chunkPointers)), keccak256(_metadata))
+            bytes.concat(bytes1(0x00), keccak256(abi.encodePacked(_chunkPointers)), keccak256(_metadata))
         );
         if (inodeExists(checksum)) revert InodeAlreadyExists();
         File memory newFile = File(_metadata, _chunkPointers);
