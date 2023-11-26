@@ -6,7 +6,6 @@ import "src/utils/Constants.sol";
 
 import {ContentStore} from "ethfs/packages/contracts/src/ContentStore.sol";
 import {FileSystem} from "src/FileSystem.sol";
-import {MockContentStore} from "test/mocks/MockContentStore.sol";
 
 import {IContentStore} from "ethfs/packages/contracts/src/IContentStore.sol";
 import {IFileSystem} from "src/interfaces/IFileSystem.sol";
@@ -16,6 +15,7 @@ contract FileSystemTest is Test {
     FileSystem internal fileSystem;
 
     // State
+    address internal mockContentStore;
     address internal contentStore;
     bytes32 internal checksum;
     bytes32[] internal filePointers;
@@ -30,7 +30,7 @@ contract FileSystemTest is Test {
     bytes4 LENGTH_MISMATCH_ERROR = IFileSystem.LengthMismatch.selector;
 
     function setUp() public virtual {
-        contentStore = address(new MockContentStore());
+        contentStore = address(new ContentStore());
         fileSystem = new FileSystem(address(contentStore));
     }
 }
