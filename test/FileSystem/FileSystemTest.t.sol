@@ -15,7 +15,6 @@ contract FileSystemTest is Test {
     FileSystem internal fileSystem;
 
     // State
-    address internal mockContentStore;
     address internal contentStore;
     bytes32 internal checksum;
     bytes32[] internal filePointers;
