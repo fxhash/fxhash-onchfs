@@ -64,13 +64,13 @@ contract FileSystem is IFileSystem {
     /**
      * @inheritdoc IFileSystem
      */
-    function createFile(bytes calldata _metadata, bytes32[] calldata _chunkPointers) external {
-        if (_containsForbiddenChars(string(_metadata))) revert InvalidCharacter();
+    function createFile(bytes calldata _filename, bytes32[] calldata _chunkChecksums) external {
+        if (_containsForbiddenChars(string(_filename))) revert InvalidCharacter();
         bytes32 checksum = keccak256(
-            bytes.concat(METADATA_TYPE, keccak256(abi.encodePacked(_chunkPointers)), keccak256(_metadata))
+            bytes.concat(METADATA_TYPE, keccak256(abi.encodePacked(_chunkChecksums)), keccak256(_filename))
         );
         if (inodeExists(checksum)) revert InodeAlreadyExists();
-        File memory newFile = File(_metadata, _chunkPointers);
+        File memory newFile = File(_filename, _chunkChecksums);
         inodes_[checksum] = Inode(InodeType.File, newFile, Directory(new string[](0), new bytes32[](0)));
     }
 

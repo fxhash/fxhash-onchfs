@@ -49,10 +49,10 @@ interface IFileSystem {
 
     /**
      * @notice Concatenates the content of file chunks from the given pointers
-     * @param _pointers Pointers to the file chunks
+     * @param _chunkChecksums Checksums for the file chunks
      * @return Concatenated content of the file chunks
      */
-    function concatenateChunks(bytes32[] memory _pointers) external view returns (bytes memory);
+    function concatenateChunks(bytes32[] memory _chunkChecksums) external view returns (bytes memory);
 
     /**
      * @notice Returns the address of the ContentStore contract
@@ -62,16 +62,16 @@ interface IFileSystem {
     /**
      * @notice Creates a new directory with the given names and file inode pointers
      * @param _fileNames List of file names in the directory
-     * @param _filePointers Pointers to the file inodes in the directory
+     * @param _fileChecksums Pointers to the file inodes in the directory
      */
-    function createDirectory(string[] calldata _fileNames, bytes32[] calldata _filePointers) external;
+    function createDirectory(string[] calldata _fileNames, bytes32[] calldata _fileChecksums) external;
 
     /**
      * @notice Creates a new file with the given metadata and chunk pointers
-     * @param _metadata Metadata of the file
-     * @param _chunkPointers Pointers to the file chunks
+     * @param _filename Metadata of the file
+     * @param _chunkChecksums Checksums for chunks of the file
      */
-    function createFile(bytes calldata _metadata, bytes32[] calldata _chunkPointers) external;
+    function createFile(bytes calldata _filename, bytes32[] calldata _chunkChecksums) external;
 
     /**
      * @notice Hashes a list of file names in the directory
