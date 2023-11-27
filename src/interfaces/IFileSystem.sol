@@ -89,9 +89,7 @@ interface IFileSystem {
     /**
      *
      */
-    function inodes(
-        bytes32 _checksum
-    ) external view returns (uint8, bytes memory, bytes32[] memory, string[] memory, bytes32[] memory);
+    function inodes(bytes32 _checksum) external view returns (InodeType, File memory, Directory memory);
 
     /**
      * @notice Reads the content of a directory with the given checksum
