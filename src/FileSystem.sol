@@ -26,7 +26,7 @@ contract FileSystem is IFileSystem {
     /**
      * @dev Mapping of checksum pointer to Inode struct
      */
-    mapping(bytes32 checksum => Inode inode) internal inodes;
+    mapping(bytes32 checksum => Inode inode) public inodes;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   CONSTRUCTOR
