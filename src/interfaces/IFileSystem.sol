@@ -87,9 +87,16 @@ interface IFileSystem {
     function hashPaths(string[] calldata _paths) external view returns (bytes32[] memory);
 
     /**
-     *
+     * @notice Mapping of checksum pointer to Inode struct
      */
     function inodes(bytes32 _checksum) external view returns (InodeType, File memory, Directory memory);
+
+    /**
+     * @notice Checks if an inode with the given checksum exists
+     * @param _checksum Checksum of the inode
+     * @return Status of inode existence
+     */
+    function inodeExists(bytes32 _checksum) external view returns (bool);
 
     /**
      * @notice Reads the content of a directory with the given checksum
@@ -104,11 +111,4 @@ interface IFileSystem {
      * @return Content of the file
      */
     function readFile(bytes32 _checksum) external view returns (bytes memory);
-
-    /**
-     * @notice Checks if an inode with the given checksum exists
-     * @param _checksum Checksum of the inode
-     * @return Status of inode existence
-     */
-    function inodeExists(bytes32 _checksum) external view returns (bool);
 }

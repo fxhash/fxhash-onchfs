@@ -24,7 +24,7 @@ contract FileSystem is IFileSystem {
     address public immutable CONTENT_STORE;
 
     /**
-     * @dev Mapping of checksum pointer to Inode struct
+     * @inheritdoc IFileSystem
      */
     mapping(bytes32 checksum => Inode inode) public inodes;
 
