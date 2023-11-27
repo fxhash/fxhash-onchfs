@@ -61,11 +61,11 @@ interface IFileSystem {
 
     /**
      * @notice Creates a new directory with the given names and file inode pointers
-     * @param _fileNames List of file names in the directory
+     * @param _paths List of file paths in the directory
      * @param _fileChecksums Pointers to the file inodes in the directory
      */
     function createDirectory(
-        string[] calldata _fileNames,
+        string[] calldata _paths,
         bytes32[] calldata _fileChecksums
     ) external returns (bytes32 directoryChecksum);
 

@@ -26,7 +26,7 @@ contract FileSystem is IFileSystem {
     /**
      * @dev Mapping of checksum pointer to Inode struct
      */
-    mapping(bytes32 checksum => Inode inode) internal inodes_;
+    mapping(bytes32 checksum => Inode inode) internal inodes;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   CONSTRUCTOR
@@ -47,21 +47,21 @@ contract FileSystem is IFileSystem {
      * @inheritdoc IFileSystem
      */
     function createDirectory(
-        string[] calldata _path,
+        string[] calldata _paths,
         bytes32[] calldata _fileChecksums
     ) external returns (bytes32 directoryChecksum) {
-        if (_path.length != _fileChecksums.length) revert LengthMismatch();
-        bytes32[] memory hashedNames = hashPaths(_path);
+        if (_paths.length != _fileChecksums.length) revert LengthMismatch();
+        bytes32[] memory hashedPaths = hashPaths(_paths);
         directoryChecksum = keccak256(
             bytes.concat(
                 METADATA_TYPE,
-                keccak256(abi.encodePacked(hashedNames)),
+                keccak256(abi.encodePacked(hashedPaths)),
                 keccak256(abi.encodePacked(_fileChecksums))
             )
         );
         if (inodeExists(directoryChecksum)) revert InodeAlreadyExists();
-        Directory memory newDirectory = Directory(_path, _fileChecksums);
-        inodes_[directoryChecksum] = Inode(InodeType.Directory, File(bytes(""), new bytes32[](0)), newDirectory);
+        Directory memory newDirectory = Directory(_paths, _fileChecksums);
+        inodes[directoryChecksum] = Inode(InodeType.Directory, File(bytes(""), new bytes32[](0)), newDirectory);
     }
 
     /**
@@ -77,7 +77,7 @@ contract FileSystem is IFileSystem {
         );
         if (inodeExists(fileChecksum)) revert InodeAlreadyExists();
         File memory newFile = File(_filename, _chunkChecksums);
-        inodes_[fileChecksum] = Inode(InodeType.File, newFile, Directory(new string[](0), new bytes32[](0)));
+        inodes[fileChecksum] = Inode(InodeType.File, newFile, Directory(new string[](0), new bytes32[](0)));
     }
 
     /**
@@ -85,7 +85,7 @@ contract FileSystem is IFileSystem {
      */
     function readDirectory(bytes32 _checksum) external view returns (string[] memory, bytes32[] memory) {
         if (!inodeExists(_checksum)) revert InodeNotFound();
-        Inode memory inode = inodes_[_checksum];
+        Inode memory inode = inodes[_checksum];
         if (inode.inodeType != InodeType.Directory) revert DirectoryNotFound();
         return (inode.directory.fileNames, inode.directory.filePointers);
     }
@@ -95,7 +95,7 @@ contract FileSystem is IFileSystem {
      */
     function readFile(bytes32 _checksum) external view returns (bytes memory) {
         if (!inodeExists(_checksum)) revert InodeNotFound();
-        Inode memory inode = inodes_[_checksum];
+        Inode memory inode = inodes[_checksum];
         if (inode.inodeType != InodeType.File) revert FileNotFound();
         return concatenateChunks(inode.file.chunkPointers);
     }
@@ -133,7 +133,7 @@ contract FileSystem is IFileSystem {
      * @inheritdoc IFileSystem
      */
     function inodeExists(bytes32 _checksum) public view returns (bool) {
-        Inode memory inode = inodes_[_checksum];
+        Inode memory inode = inodes[_checksum];
         File memory file = inode.file;
         Directory memory directory = inode.directory;
         if (inode.inodeType == InodeType.File) {
@@ -153,7 +153,7 @@ contract FileSystem is IFileSystem {
     function _containsForbiddenChars(string calldata _characters) private pure returns (bool) {
         uint256 length = bytes(_characters).length;
         for (uint256 i; i < length; i++) {
-            for (uint256 j; j < CHARACTER_LEGNTH; j++) {
+            for (uint256 j; j < CHARACTER_LENGTH; j++) {
                 if (bytes(_characters)[i] == bytes(FORBIDDEN_CHARS)[j]) {
                     return true;
                 }
