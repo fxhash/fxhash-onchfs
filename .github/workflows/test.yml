@@ -1,6 +1,14 @@
 name: test
 
-on: workflow_dispatch
+concurrency:
+  cancel-in-progress: true
+  group: ${{github.workflow}}-${{github.ref}}
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
 
 env:
   FOUNDRY_PROFILE: ci
@@ -13,7 +21,7 @@ jobs:
     name: Foundry project
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
         with:
           submodules: recursive
 
@@ -22,13 +30,24 @@ jobs:
         with:
           version: nightly
 
+      - name: install dependencies 
+        run: npm ci
+
+      - name: check formatting
+        run: npx prettier --check 'src/**/*.sol' 'test/**/*.sol' 'script/**/*.sol'
+
       - name: Run Forge build
         run: |
           forge --version
           forge build --sizes
         id: build
 
-      - name: Run Forge tests
+      - name: Run tests
+        shell: bash
         run: |
-          forge test -vvv
+          forge test
         id: test
+
+      - name: Upload Selectors to Openchain.xyz
+        run: |
+          forge selectors upload --all
