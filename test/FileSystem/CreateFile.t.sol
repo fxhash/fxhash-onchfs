@@ -25,11 +25,26 @@ contract CreateFile is FileSystemTest {
         assertTrue(fileSystem.inodeExists(checksum));
     }
 
+    function test_WhenMultipleChunks() public {
+        chunkChecksums.push(chunkChecksums[0]);
+        fileSystem.createFile(filename, chunkChecksums);
+        checksum = keccak256(
+            abi.encodePacked(METADATA_TYPE, keccak256(abi.encodePacked(chunkChecksums)), keccak256(filename))
+        );
+        assertTrue(fileSystem.inodeExists(checksum));
+    }
+
     function test_ReadFile() public {
         test_CreateFile();
         bytes memory initialContent = fileContent;
         fileContent = fileSystem.readFile(checksum);
         assertEq(fileContent, fileSystem.concatenateChunks(chunkChecksums));
         assertEq(fileContent, initialContent);
+    }
+
+    function test_WhenMultipleChunks_ReadFile() public {
+        test_WhenMultipleChunks();
+        fileContent = fileSystem.readFile(checksum);
+        assertEq(fileContent, fileSystem.concatenateChunks(chunkChecksums));
     }
 }
