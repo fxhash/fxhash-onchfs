@@ -49,36 +49,54 @@ interface IFileSystem {
 
     /**
      * @notice Concatenates the content of file chunks from the given pointers
-     * @param _pointers Pointers to the file chunks
+     * @param _chunkChecksums Checksums for the file chunks
      * @return Concatenated content of the file chunks
      */
-    function concatenateChunks(bytes32[] memory _pointers) external view returns (bytes memory);
+    function concatenateChunks(bytes32[] memory _chunkChecksums) external view returns (bytes memory);
 
     /**
      * @notice Returns the address of the ContentStore contract
      */
-    function contentStore() external view returns (address);
+    function CONTENT_STORE() external view returns (address);
 
     /**
      * @notice Creates a new directory with the given names and file inode pointers
-     * @param _fileNames List of file names in the directory
-     * @param _filePointers Pointers to the file inodes in the directory
+     * @param _paths List of file paths in the directory
+     * @param _fileChecksums Pointers to the file inodes in the directory
      */
-    function createDirectory(string[] calldata _fileNames, bytes32[] calldata _filePointers) external;
+    function createDirectory(
+        string[] calldata _paths,
+        bytes32[] calldata _fileChecksums
+    ) external returns (bytes32 directoryChecksum);
 
     /**
      * @notice Creates a new file with the given metadata and chunk pointers
-     * @param _metadata Metadata of the file
-     * @param _chunkPointers Pointers to the file chunks
+     * @param _filename Metadata of the file
+     * @param _chunkChecksums Checksums for chunks of the file
      */
-    function createFile(bytes calldata _metadata, bytes32[] calldata _chunkPointers) external;
+    function createFile(
+        bytes calldata _filename,
+        bytes32[] calldata _chunkChecksums
+    ) external returns (bytes32 fileChecksum);
 
     /**
      * @notice Hashes a list of file names in the directory
-     * @param _names List of file names
+     * @param _paths List of file names
      * @return Hashed names
      */
-    function hashNames(string[] calldata _names) external view returns (bytes32[] memory);
+    function hashPaths(string[] calldata _paths) external view returns (bytes32[] memory);
+
+    /**
+     * @notice Mapping of checksum pointer to Inode struct
+     */
+    function inodes(bytes32 _checksum) external view returns (InodeType, File memory, Directory memory);
+
+    /**
+     * @notice Checks if an inode with the given checksum exists
+     * @param _checksum Checksum of the inode
+     * @return Status of inode existence
+     */
+    function inodeExists(bytes32 _checksum) external view returns (bool);
 
     /**
      * @notice Reads the content of a directory with the given checksum
@@ -93,11 +111,4 @@ interface IFileSystem {
      * @return Content of the file
      */
     function readFile(bytes32 _checksum) external view returns (bytes memory);
-
-    /**
-     * @notice Checks if an inode with the given checksum exists
-     * @param _checksum Checksum of the inode
-     * @return Status of inode existence
-     */
-    function inodeExists(bytes32 _checksum) external view returns (bool);
 }

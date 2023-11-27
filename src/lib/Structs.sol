@@ -11,13 +11,13 @@ enum InodeType {
 }
 
 struct Directory {
-    string[] fileNames;
-    bytes32[] filePointers;
+    string[] paths;
+    bytes32[] fileChecksums;
 }
 
 struct File {
-    bytes metadata;
-    bytes32[] chunkPointers;
+    bytes name;
+    bytes32[] chunkChecksums;
 }
 
 struct Inode {
