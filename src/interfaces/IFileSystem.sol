@@ -64,14 +64,20 @@ interface IFileSystem {
      * @param _fileNames List of file names in the directory
      * @param _fileChecksums Pointers to the file inodes in the directory
      */
-    function createDirectory(string[] calldata _fileNames, bytes32[] calldata _fileChecksums) external;
+    function createDirectory(
+        string[] calldata _fileNames,
+        bytes32[] calldata _fileChecksums
+    ) external returns (bytes32 directoryChecksum);
 
     /**
      * @notice Creates a new file with the given metadata and chunk pointers
      * @param _filename Metadata of the file
      * @param _chunkChecksums Checksums for chunks of the file
      */
-    function createFile(bytes calldata _filename, bytes32[] calldata _chunkChecksums) external;
+    function createFile(
+        bytes calldata _filename,
+        bytes32[] calldata _chunkChecksums
+    ) external returns (bytes32 fileChecksum);
 
     /**
      * @notice Hashes a list of file names in the directory

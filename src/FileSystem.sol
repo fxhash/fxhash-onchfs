@@ -46,32 +46,38 @@ contract FileSystem is IFileSystem {
     /**
      * @inheritdoc IFileSystem
      */
-    function createDirectory(string[] calldata _path, bytes32[] calldata _filePointers) external {
-        if (_path.length != _filePointers.length) revert LengthMismatch();
+    function createDirectory(
+        string[] calldata _path,
+        bytes32[] calldata _fileChecksums
+    ) external returns (bytes32 directoryChecksum) {
+        if (_path.length != _fileChecksums.length) revert LengthMismatch();
         bytes32[] memory hashedNames = hashPaths(_path);
-        bytes32 checksum = keccak256(
+        directoryChecksum = keccak256(
             bytes.concat(
                 METADATA_TYPE,
                 keccak256(abi.encodePacked(hashedNames)),
-                keccak256(abi.encodePacked(_filePointers))
+                keccak256(abi.encodePacked(_fileChecksums))
             )
         );
-        if (inodeExists(checksum)) revert InodeAlreadyExists();
-        Directory memory newDirectory = Directory(_path, _filePointers);
-        inodes_[checksum] = Inode(InodeType.Directory, File(bytes(""), new bytes32[](0)), newDirectory);
+        if (inodeExists(directoryChecksum)) revert InodeAlreadyExists();
+        Directory memory newDirectory = Directory(_path, _fileChecksums);
+        inodes_[directoryChecksum] = Inode(InodeType.Directory, File(bytes(""), new bytes32[](0)), newDirectory);
     }
 
     /**
      * @inheritdoc IFileSystem
      */
-    function createFile(bytes calldata _filename, bytes32[] calldata _chunkChecksums) external {
+    function createFile(
+        bytes calldata _filename,
+        bytes32[] calldata _chunkChecksums
+    ) external returns (bytes32 fileChecksum) {
         if (_containsForbiddenChars(string(_filename))) revert InvalidCharacter();
-        bytes32 checksum = keccak256(
+        fileChecksum = keccak256(
             bytes.concat(METADATA_TYPE, keccak256(abi.encodePacked(_chunkChecksums)), keccak256(_filename))
         );
-        if (inodeExists(checksum)) revert InodeAlreadyExists();
+        if (inodeExists(fileChecksum)) revert InodeAlreadyExists();
         File memory newFile = File(_filename, _chunkChecksums);
-        inodes_[checksum] = Inode(InodeType.File, newFile, Directory(new string[](0), new bytes32[](0)));
+        inodes_[fileChecksum] = Inode(InodeType.File, newFile, Directory(new string[](0), new bytes32[](0)));
     }
 
     /**
