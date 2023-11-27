@@ -68,15 +68,15 @@ contract FileSystem is IFileSystem {
      * @inheritdoc IFileSystem
      */
     function createFile(
-        bytes calldata _filename,
+        bytes calldata _name,
         bytes32[] calldata _chunkChecksums
     ) external returns (bytes32 fileChecksum) {
-        if (_containsForbiddenChars(string(_filename))) revert InvalidCharacter();
+        if (_containsForbiddenChars(string(_name))) revert InvalidCharacter();
         fileChecksum = keccak256(
-            bytes.concat(METADATA_TYPE, keccak256(abi.encodePacked(_chunkChecksums)), keccak256(_filename))
+            bytes.concat(METADATA_TYPE, keccak256(abi.encodePacked(_chunkChecksums)), keccak256(_name))
         );
         if (inodeExists(fileChecksum)) revert InodeAlreadyExists();
-        File memory newFile = File(_filename, _chunkChecksums);
+        File memory newFile = File(_name, _chunkChecksums);
         inodes[fileChecksum] = Inode(InodeType.File, newFile, Directory(new string[](0), new bytes32[](0)));
     }
 
@@ -87,7 +87,7 @@ contract FileSystem is IFileSystem {
         if (!inodeExists(_checksum)) revert InodeNotFound();
         Inode memory inode = inodes[_checksum];
         if (inode.inodeType != InodeType.Directory) revert DirectoryNotFound();
-        return (inode.directory.fileNames, inode.directory.filePointers);
+        return (inode.directory.paths, inode.directory.fileChecksums);
     }
 
     /**
@@ -97,7 +97,7 @@ contract FileSystem is IFileSystem {
         if (!inodeExists(_checksum)) revert InodeNotFound();
         Inode memory inode = inodes[_checksum];
         if (inode.inodeType != InodeType.File) revert FileNotFound();
-        return concatenateChunks(inode.file.chunkPointers);
+        return concatenateChunks(inode.file.chunkChecksums);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -136,10 +136,10 @@ contract FileSystem is IFileSystem {
         Inode memory inode = inodes[_checksum];
         if (inode.inodeType == InodeType.File) {
             File memory file = inode.file;
-            return file.metadata.length != 0 || file.chunkPointers.length != 0;
+            return file.name.length != 0 || file.chunkChecksums.length != 0;
         } else {
             Directory memory directory = inode.directory;
-            return directory.fileNames.length != 0 || directory.filePointers.length != 0;
+            return directory.paths.length != 0 || directory.fileChecksums.length != 0;
         }
     }
 
