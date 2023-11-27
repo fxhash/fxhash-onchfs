@@ -87,6 +87,13 @@ interface IFileSystem {
     function hashPaths(string[] calldata _paths) external view returns (bytes32[] memory);
 
     /**
+     *
+     */
+    function inodes(
+        bytes32 _checksum
+    ) external view returns (uint8, bytes memory, bytes32[] memory, string[] memory, bytes32[] memory);
+
+    /**
      * @notice Reads the content of a directory with the given checksum
      * @param _checksum Checksum of the directory
      * @return Names and file inode pointers in the directory
