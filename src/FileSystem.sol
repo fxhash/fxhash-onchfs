@@ -21,7 +21,7 @@ contract FileSystem is IFileSystem {
     /**
      * @inheritdoc IFileSystem
      */
-    address public immutable contentStore;
+    address public immutable CONTENT_STORE;
 
     /**
      * @dev Mapping of checksum pointer to Inode struct
@@ -36,7 +36,7 @@ contract FileSystem is IFileSystem {
      * @dev Initializes the ContentStore contract
      */
     constructor(address _contentStore) {
-        contentStore = _contentStore;
+        CONTENT_STORE = _contentStore;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -111,7 +111,7 @@ contract FileSystem is IFileSystem {
         address pointer;
         bytes memory chunkContent;
         for (uint256 i; i < _pointers.length; i++) {
-            pointer = IContentStore(contentStore).getPointer(_pointers[i]);
+            pointer = IContentStore(CONTENT_STORE).getPointer(_pointers[i]);
             chunkContent = SSTORE2.read(pointer);
             fileContent = abi.encodePacked(fileContent, chunkContent);
         }
@@ -134,11 +134,11 @@ contract FileSystem is IFileSystem {
      */
     function inodeExists(bytes32 _checksum) public view returns (bool) {
         Inode memory inode = inodes[_checksum];
-        File memory file = inode.file;
-        Directory memory directory = inode.directory;
         if (inode.inodeType == InodeType.File) {
+            File memory file = inode.file;
             return file.metadata.length != 0 || file.chunkPointers.length != 0;
         } else {
+            Directory memory directory = inode.directory;
             return directory.fileNames.length != 0 || directory.filePointers.length != 0;
         }
     }
@@ -150,11 +150,11 @@ contract FileSystem is IFileSystem {
     /**
      * @dev Checks if the given string contains any forbidden characters
      */
-    function _containsForbiddenChars(string calldata _characters) private pure returns (bool) {
-        uint256 length = bytes(_characters).length;
+    function _containsForbiddenChars(string calldata _stringToCheck) private pure returns (bool) {
+        uint256 length = bytes(_stringToCheck).length;
         for (uint256 i; i < length; i++) {
             for (uint256 j; j < CHARACTER_LENGTH; j++) {
-                if (bytes(_characters)[i] == bytes(FORBIDDEN_CHARS)[j]) {
+                if (bytes(_stringToCheck)[i] == bytes(FORBIDDEN_CHARS)[j]) {
                     return true;
                 }
             }
