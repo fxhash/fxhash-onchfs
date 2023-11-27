@@ -2,7 +2,6 @@
 pragma solidity 0.8.23;
 
 import "test/FileSystem/FileSystemTest.t.sol";
-import {console2} from "forge-std/Test.sol";
 
 contract CreateFile is FileSystemTest {
     bytes internal filename;
