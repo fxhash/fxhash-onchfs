@@ -54,7 +54,7 @@ contract FileSystem is IFileSystem {
         bytes32[] memory hashedPaths = hashPaths(_paths);
         directoryChecksum = keccak256(
             bytes.concat(
-                METADATA_TYPE,
+                DIRECTORY_TYPE,
                 keccak256(abi.encodePacked(hashedPaths)),
                 keccak256(abi.encodePacked(_fileChecksums))
             )
@@ -69,14 +69,14 @@ contract FileSystem is IFileSystem {
      */
     function createFile(
         bytes calldata _name,
-        bytes32[] calldata _chunkChecksums
+        bytes32[] calldata _chunkPointers
     ) external returns (bytes32 fileChecksum) {
         if (_containsForbiddenChars(string(_name))) revert InvalidCharacter();
         fileChecksum = keccak256(
-            bytes.concat(METADATA_TYPE, keccak256(abi.encodePacked(_chunkChecksums)), keccak256(_name))
+            bytes.concat(FILE_TYPE, keccak256(abi.encodePacked(_chunkPointers)), keccak256(_name))
         );
         if (inodeExists(fileChecksum)) revert InodeAlreadyExists();
-        File memory newFile = File(_name, _chunkChecksums);
+        File memory newFile = File(_name, _chunkPointers);
         inodes[fileChecksum] = Inode(InodeType.File, newFile, Directory(new string[](0), new bytes32[](0)));
     }
 

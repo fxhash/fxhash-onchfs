@@ -19,7 +19,7 @@ contract CreateFile is FileSystemTest {
     function test_CreateFile() public {
         fileSystem.createFile(filename, chunkChecksums);
         checksum = keccak256(
-            abi.encodePacked(METADATA_TYPE, keccak256(abi.encodePacked(chunkChecksums)), keccak256(filename))
+            abi.encodePacked(FILE_TYPE, keccak256(abi.encodePacked(chunkChecksums)), keccak256(filename))
         );
         assertTrue(fileSystem.inodeExists(checksum));
     }
@@ -28,7 +28,7 @@ contract CreateFile is FileSystemTest {
         chunkChecksums.push(chunkChecksums[0]);
         fileSystem.createFile(filename, chunkChecksums);
         checksum = keccak256(
-            abi.encodePacked(METADATA_TYPE, keccak256(abi.encodePacked(chunkChecksums)), keccak256(filename))
+            abi.encodePacked(FILE_TYPE, keccak256(abi.encodePacked(chunkChecksums)), keccak256(filename))
         );
         assertTrue(fileSystem.inodeExists(checksum));
     }
