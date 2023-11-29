@@ -133,10 +133,12 @@ contract FileSystem is IFileSystem {
     function hashFileNames(string[] calldata _fileNames) public pure returns (bytes32[] memory hashedPaths) {
         uint256 length = _fileNames.length;
         hashedPaths = new bytes32[](length);
+        bytes memory filename;
         for (uint256 i; i < length; i++) {
-            if (bytes(_fileNames[i]).length == 0) revert InvalidFileName();
-            if (_containsForbiddenChars(_fileNames[i])) revert InvalidCharacter();
-            hashedPaths[i] = keccak256(bytes(_fileNames[i]));
+            filename = bytes(_fileNames[i]);
+            if (filename.length == 0) revert InvalidFileName();
+            if (_containsForbiddenChars(filename)) revert InvalidCharacter();
+            hashedPaths[i] = keccak256(filename);
         }
     }
 
@@ -159,11 +161,11 @@ contract FileSystem is IFileSystem {
     /**
      * @dev Checks if the given string contains any forbidden characters
      */
-    function _containsForbiddenChars(string calldata _stringToCheck) private pure returns (bool) {
+    function _containsForbiddenChars(bytes memory _stringToCheck) private pure returns (bool) {
         uint256 length = bytes(_stringToCheck).length;
         for (uint256 i; i < length; i++) {
             for (uint256 j; j < CHARACTER_LENGTH; j++) {
-                if (bytes(_stringToCheck)[i] == bytes(FORBIDDEN_CHARS)[j]) {
+                if (_stringToCheck[i] == FORBIDDEN_CHARS[j]) {
                     return true;
                 }
             }
