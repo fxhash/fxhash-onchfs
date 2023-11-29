@@ -4,9 +4,7 @@ pragma solidity 0.8.23;
 import "test/FileSystem/FileSystemTest.t.sol";
 
 contract CreateDirectory is FileSystemTest {
-    bytes32[] internal hashedPaths;
-    bytes32[] internal pointers;
-    string[] internal paths;
+    bytes32[] internal hashedNames;
 
     function setUp() public override {
         super.setUp();
@@ -20,26 +18,14 @@ contract CreateDirectory is FileSystemTest {
 
     function test_CreateDirectory() public {
         fileSystem.createDirectory(fileNames, filePointers);
-        hashedPaths = fileSystem.hashPaths(fileNames);
+        hashedNames = fileSystem.hashFileNames(fileNames);
         checksum = keccak256(
             abi.encodePacked(
                 DIRECTORY_TYPE,
-                keccak256(abi.encodePacked(hashedPaths)),
+                keccak256(abi.encodePacked(hashedNames)),
                 keccak256(abi.encodePacked(filePointers))
             )
         );
         assertTrue(fileSystem.inodeExists(checksum));
-    }
-
-    function test_ReadDirectory() public {
-        test_CreateDirectory();
-        (paths, pointers) = fileSystem.readDirectory(checksum);
-        assertEq(paths.length, fileNames.length);
-        assertEq(pointers.length, filePointers.length);
-
-        for (uint256 i; i < paths.length; i++) {
-            assertEq(paths[i], fileNames[i]);
-            assertEq(pointers[i], filePointers[i]);
-        }
     }
 }

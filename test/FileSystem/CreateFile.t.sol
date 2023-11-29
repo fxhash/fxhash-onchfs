@@ -32,18 +32,4 @@ contract CreateFile is FileSystemTest {
         );
         assertTrue(fileSystem.inodeExists(checksum));
     }
-
-    function test_ReadFile() public {
-        test_CreateFile();
-        bytes memory initialContent = fileContent;
-        fileContent = fileSystem.readFile(checksum);
-        assertEq(fileContent, fileSystem.concatenateChunks(chunkChecksums));
-        assertEq(fileContent, initialContent);
-    }
-
-    function test_WhenMultipleChunks_ReadFile() public {
-        test_WhenMultipleChunks();
-        fileContent = fileSystem.readFile(checksum);
-        assertEq(fileContent, fileSystem.concatenateChunks(chunkChecksums));
-    }
 }

@@ -6,6 +6,7 @@ import "src/utils/Constants.sol";
 
 import {ContentStore} from "ethfs/packages/contracts/src/ContentStore.sol";
 import {FileSystem} from "src/FileSystem.sol";
+import {BytesLib} from "test/utils/BytesLib.sol";
 
 import {IContentStore} from "ethfs/packages/contracts/src/IContentStore.sol";
 import {IFileSystem} from "src/interfaces/IFileSystem.sol";
