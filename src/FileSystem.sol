@@ -61,6 +61,7 @@ contract FileSystem is IFileSystem {
         );
         if (inodeExists(directoryChecksum)) return directoryChecksum;
         inodes[directoryChecksum].directory = Directory(_fileNames, _inodeChecksums);
+        emit DirectoryCreated(directoryChecksum, _fileNames, _inodeChecksums);
     }
 
     /**
@@ -83,6 +84,7 @@ contract FileSystem is IFileSystem {
         if (inodeExists(fileChecksum)) return fileChecksum;
         inodes[fileChecksum].inodeType = InodeType.File;
         inodes[fileChecksum].file = File(_metadata, _chunkPointers);
+        emit FileCreated(fileChecksum, _metadata, _chunkPointers);
     }
 
     /**
