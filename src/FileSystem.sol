@@ -63,7 +63,7 @@ contract FileSystem is IFileSystem {
                 keccak256(abi.encodePacked(_inodeChecksums))
             )
         );
-        if (inodeExists(directoryChecksum)) revert InodeAlreadyExists();
+        if (inodeExists(directoryChecksum)) return directoryChecksum;
         Directory memory newDirectory = Directory(_fileNames, _inodeChecksums);
         inodes[directoryChecksum] = Inode(InodeType.Directory, File(bytes(""), new bytes32[](0)), newDirectory);
     }
@@ -85,7 +85,7 @@ contract FileSystem is IFileSystem {
                 keccak256(_metadata)
             )
         );
-        if (inodeExists(fileChecksum)) revert InodeAlreadyExists();
+        if (inodeExists(fileChecksum)) return fileChecksum;
         File memory newFile = File(_metadata, _chunkPointers);
         inodes[fileChecksum] = Inode(InodeType.File, newFile, Directory(new string[](0), new bytes32[](0)));
     }

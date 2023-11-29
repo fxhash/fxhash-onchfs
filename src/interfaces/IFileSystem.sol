@@ -28,11 +28,6 @@ interface IFileSystem {
     error FileNotFound();
 
     /**
-     * @notice Error thrown when the checksum is already associated with an inode
-     */
-    error InodeAlreadyExists();
-
-    /**
      * @notice Error thrown when attempting to read an inode that does not exist
      */
     error InodeNotFound();
