@@ -51,4 +51,9 @@ contract ReadFile is FileSystemTest {
         bytes memory result = fileSystem.readFile(checksum);
         assertEq(result, bytes.concat(fileContent, fileContent2));
     }
+
+    function test_keccak256() public {
+        bytes32[] memory _chunkPointers;
+        console.logBytes32(keccak256(abi.encodePacked(_chunkPointers)));
+    }
 }

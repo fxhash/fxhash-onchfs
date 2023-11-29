@@ -170,4 +170,49 @@ contract FileSystem is IFileSystem {
         }
         return false;
     }
+
+    // function getInodeAt(
+    //     bytes32 _inodeChecksum,
+    //     string[] memory _pathSegments
+    // ) public view returns (bytes32 inodeChecksum) {
+    //     if (!inodeExists(_inodeChecksum)) revert InodeNotFound();
+    //     Inode memory inode = inodes[_inodeChecksum];
+    //     bytes32 inodeChecksum = _inodeChecksum;
+    //
+    //     uint256 length = _pathSegments.length;
+    //     Directory memory directory;
+    //     string memory filenames;
+    //     for (uint256 i; i < length; i++) {
+    //         if (inode.inodeType != InodeType.Directory) revert InodeNotFound();
+    //         directory = inode.directory;
+    //         filenames = inode.directory.filenames;
+    //         for (uint256 i; i < filenames.length; i++) {
+    //             // check if filename not in list of inodes
+    //             // set that as directory and continue traversing
+    //         }
+    //     }
+    // }
+    //
+    // @sp.onchain_view()
+    // def get_inode_at(self, uri):
+    //   sp.set_type(uri, sp.TRecord(
+    //     cid = sp.TBytes,
+    //     path = sp.TList(sp.TString),
+    //   ))
+    //   sp.verify(self.data.inodes.contains(uri.cid), Errors.INODE_NOT_FOUND)
+    //   # Set base inode to be the one under uri.cid
+    //   inode = sp.local("inode", self.data.inodes[uri.cid])
+    //   cid = sp.local("cid", uri.cid)
+    //   # Loop through each segment in the path to navigate the tree of files
+    //   # recursively starting from base node
+    //   sp.for segment in uri.path:
+    //     sp.verify(inode.value.is_variant("directory"), Errors.INODE_NOT_FOUND)
+    //     opened = inode.value.open_variant("directory")
+    //     sp.verify(opened.contains(segment), Errors.INODE_NOT_FOUND)
+    //     cid.value = opened[segment]
+    //     inode.value = self.data.inodes[cid.value]
+    //   sp.result(sp.record(
+    //     cid = cid.value,
+    //     inode = inode.value,
+    //   ))
 }
