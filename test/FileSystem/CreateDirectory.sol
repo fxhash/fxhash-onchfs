@@ -32,7 +32,7 @@ contract CreateDirectory is FileSystemTest {
     function test_EmptyDirectory() public {
         delete fileNames;
         delete filePointers;
-        bytes32 checksum = fileSystem.createDirectory(fileNames, filePointers);
+        fileSystem.createDirectory(fileNames, filePointers);
     }
 
     function test_RevertsWhen_INodeNotFound() public {

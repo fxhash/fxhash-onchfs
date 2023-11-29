@@ -51,11 +51,11 @@ contract FileSystem is IFileSystem {
         bytes32[] calldata _fileChecksums
     ) external returns (bytes32 directoryChecksum) {
         if (_fileNames.length != _fileChecksums.length) revert LengthMismatch();
-        bytes32[] memory hashedPaths = hashFileNames(_fileNames);
+        bytes32[] memory hashedFilenames = hashFileNames(_fileNames);
         directoryChecksum = keccak256(
             bytes.concat(
                 DIRECTORY_TYPE,
-                keccak256(abi.encodePacked(hashedPaths)),
+                keccak256(abi.encodePacked(hashedFilenames)),
                 keccak256(abi.encodePacked(_fileChecksums))
             )
         );
@@ -68,18 +68,18 @@ contract FileSystem is IFileSystem {
      * @inheritdoc IFileSystem
      */
     function createFile(
-        bytes calldata _fileName,
+        bytes calldata _metadata,
         bytes32[] calldata _chunkPointers
     ) external returns (bytes32 fileChecksum) {
-        if (_containsForbiddenChars(string(_fileName))) revert InvalidCharacter();
+        if (_containsForbiddenChars(string(_metadata))) revert InvalidCharacter();
         for (uint256 i; i < _chunkPointers.length; i++) {
             if (!IContentStore(CONTENT_STORE).checksumExists(_chunkPointers[i])) revert ChunkNotFound();
         }
         fileChecksum = keccak256(
-            bytes.concat(FILE_TYPE, keccak256(abi.encodePacked(_chunkPointers)), keccak256(_fileName))
+            bytes.concat(FILE_TYPE, keccak256(abi.encodePacked(_chunkPointers)), keccak256(_metadata))
         );
         if (inodeExists(fileChecksum)) revert InodeAlreadyExists();
-        File memory newFile = File(_fileName, _chunkPointers);
+        File memory newFile = File(_metadata, _chunkPointers);
         inodes[fileChecksum] = Inode(InodeType.File, newFile, Directory(new string[](0), new bytes32[](0)));
     }
 

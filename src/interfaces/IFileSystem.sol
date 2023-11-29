@@ -75,11 +75,11 @@ interface IFileSystem {
 
     /**
      * @notice Creates a new file with the given metadata and chunk pointers
-     * @param _filename Metadata of the file
+     * @param _metadata Metadata of the file
      * @param _chunkChecksums Checksums for chunks of the file
      */
     function createFile(
-        bytes calldata _filename,
+        bytes calldata _metadata,
         bytes32[] calldata _chunkChecksums
     ) external returns (bytes32 fileChecksum);
 
