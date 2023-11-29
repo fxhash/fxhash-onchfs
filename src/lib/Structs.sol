@@ -6,8 +6,8 @@ pragma solidity 0.8.23;
 //////////////////////////////////////////////////////////////////////////*/
 
 enum InodeType {
-    File,
-    Directory
+    Directory,
+    File
 }
 
 struct Directory {
