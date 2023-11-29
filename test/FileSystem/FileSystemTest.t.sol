@@ -27,6 +27,7 @@ contract FileSystemTest is Test {
     bytes4 internal immutable FILE_NOT_FOUND_ERROR = IFileSystem.FileNotFound.selector;
     bytes4 internal immutable INODE_NOT_FOUND_ERROR = IFileSystem.InodeNotFound.selector;
     bytes4 internal immutable INVALID_CHARACTER_ERROR = IFileSystem.InvalidCharacter.selector;
+    bytes4 internal immutable INVALID_FILENAME_ERROR = IFileSystem.InvalidFileName.selector;
     bytes4 internal immutable LENGTH_MISMATCH_ERROR = IFileSystem.LengthMismatch.selector;
 
     function setUp() public virtual {

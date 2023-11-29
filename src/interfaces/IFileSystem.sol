@@ -32,6 +32,9 @@ interface IFileSystem {
      */
     error InodeNotFound();
 
+    /**
+     * @notice Error thrown when file name is empty
+     */
     error InvalidFileName();
 
     /**

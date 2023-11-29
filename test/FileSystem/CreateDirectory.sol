@@ -46,6 +46,12 @@ contract CreateDirectory is FileSystemTest {
         fileSystem.createDirectory(fileNames, filePointers);
     }
 
+    function test_RevertsWhen_FileNameEmpty() public {
+        fileNames[0] = "";
+        vm.expectRevert(INVALID_FILENAME_ERROR);
+        fileSystem.createDirectory(fileNames, filePointers);
+    }
+
     function test_RevertsWhen_InvalidCharacters() public {
         fileNames[0] = "/";
         vm.expectRevert(INVALID_CHARACTER_ERROR);
