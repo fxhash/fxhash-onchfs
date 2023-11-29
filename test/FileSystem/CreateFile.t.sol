@@ -4,31 +4,56 @@ pragma solidity 0.8.23;
 import "test/FileSystem/FileSystemTest.t.sol";
 
 contract CreateFile is FileSystemTest {
-    bytes internal filename;
+    bytes internal metadata;
     bytes internal fileContent;
     bytes32[] internal chunkChecksums;
 
     function setUp() public override {
         super.setUp();
-        filename = "file metadata";
+        metadata = "file metadata";
         fileContent = bytes("asdf");
         (bytes32 checksum, ) = IContentStore(contentStore).addContent(fileContent);
         chunkChecksums.push(checksum);
     }
 
     function test_CreateFile() public {
-        fileSystem.createFile(filename, chunkChecksums);
+        fileSystem.createFile(metadata, chunkChecksums);
         checksum = keccak256(
-            abi.encodePacked(FILE_TYPE, keccak256(abi.encodePacked(chunkChecksums)), keccak256(filename))
+            abi.encodePacked(FILE_TYPE, keccak256(abi.encodePacked(chunkChecksums)), keccak256(metadata))
         );
         assertTrue(fileSystem.inodeExists(checksum));
     }
 
+    function test_RevertsWhen_DuplicateFile() public {
+        fileSystem.createFile(metadata, chunkChecksums);
+
+        vm.expectRevert(INODE_ALREADY_EXISTS_ERROR);
+        fileSystem.createFile(metadata, chunkChecksums);
+    }
+
+    function test_RevertsWhen_MetadataIncludesInvalidCharacters() public {
+        vm.expectRevert(INVALID_CHARACTER_ERROR);
+        fileSystem.createFile(bytes("/"), chunkChecksums);
+    }
+
+    function test_RevertsWhen_ChunkPointerReferencesEmptyChunk() public {
+        delete chunkChecksums;
+        chunkChecksums = new bytes32[](1);
+        vm.expectRevert(CHUNK_NOT_FOUND_ERROR);
+        fileSystem.createFile(metadata, chunkChecksums);
+    }
+
+    function test_SameContent_UniqueMetadata_DifferentFile() public {
+        bytes32 checksum1 = fileSystem.createFile(metadata, chunkChecksums);
+        bytes32 checksum2 = fileSystem.createFile(bytes("null"), chunkChecksums);
+        assertTrue(checksum1 != checksum2);
+    }
+
     function test_WhenMultipleChunks() public {
         chunkChecksums.push(chunkChecksums[0]);
-        fileSystem.createFile(filename, chunkChecksums);
+        fileSystem.createFile(metadata, chunkChecksums);
         checksum = keccak256(
-            abi.encodePacked(FILE_TYPE, keccak256(abi.encodePacked(chunkChecksums)), keccak256(filename))
+            abi.encodePacked(FILE_TYPE, keccak256(abi.encodePacked(chunkChecksums)), keccak256(metadata))
         );
         assertTrue(fileSystem.inodeExists(checksum));
     }

@@ -72,6 +72,9 @@ contract FileSystem is IFileSystem {
         bytes32[] calldata _chunkPointers
     ) external returns (bytes32 fileChecksum) {
         if (_containsForbiddenChars(string(_fileName))) revert InvalidCharacter();
+        for (uint256 i; i < _chunkPointers.length; i++) {
+            if (!IContentStore(CONTENT_STORE).checksumExists(_chunkPointers[i])) revert ChunkNotFound();
+        }
         fileChecksum = keccak256(
             bytes.concat(FILE_TYPE, keccak256(abi.encodePacked(_chunkPointers)), keccak256(_fileName))
         );

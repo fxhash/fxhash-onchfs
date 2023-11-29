@@ -14,6 +14,10 @@ interface IFileSystem {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
+     * @notice Error thrown when attempting to read chunk that does not exist
+     */
+    error ChunkNotFound();
+    /**
      * @notice Error thrown when reading a directory that does not exist
      */
     error DirectoryNotFound();
