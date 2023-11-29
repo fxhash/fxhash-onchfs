@@ -48,19 +48,23 @@ contract FileSystem is IFileSystem {
      */
     function createDirectory(
         string[] calldata _fileNames,
-        bytes32[] calldata _fileChecksums
+        bytes32[] calldata _inodeChecksums
     ) external returns (bytes32 directoryChecksum) {
-        if (_fileNames.length != _fileChecksums.length) revert LengthMismatch();
+        if (_fileNames.length != _inodeChecksums.length) revert LengthMismatch();
         bytes32[] memory hashedFilenames = hashFileNames(_fileNames);
+
+        for (uint256 i; i < _inodeChecksums.length; i++) {
+            if (!inodeExists(_inodeChecksums[i])) revert InodeNotFound();
+        }
         directoryChecksum = keccak256(
             bytes.concat(
                 bytes1(uint8(InodeType.Directory)),
                 keccak256(abi.encodePacked(hashedFilenames)),
-                keccak256(abi.encodePacked(_fileChecksums))
+                keccak256(abi.encodePacked(_inodeChecksums))
             )
         );
         if (inodeExists(directoryChecksum)) revert InodeAlreadyExists();
-        Directory memory newDirectory = Directory(_fileNames, _fileChecksums);
+        Directory memory newDirectory = Directory(_fileNames, _inodeChecksums);
         inodes[directoryChecksum] = Inode(InodeType.Directory, File(bytes(""), new bytes32[](0)), newDirectory);
     }
 
