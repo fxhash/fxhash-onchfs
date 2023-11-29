@@ -16,7 +16,7 @@ struct Directory {
 }
 
 struct File {
-    bytes name;
+    bytes metadata;
     bytes32[] chunkChecksums;
 }
 

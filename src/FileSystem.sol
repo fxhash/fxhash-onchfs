@@ -14,6 +14,8 @@ import "src/utils/Constants.sol";
  * @notice See the documentation in {IFileSystem}
  */
 contract FileSystem is IFileSystem {
+    uint256 internal constant CHARACTER_LENGTH = 18;
+    bytes internal constant FORBIDDEN_CHARS = ":/?#[]@!$&'()*+,;=";
     /*//////////////////////////////////////////////////////////////////////////
                                     STORAGE
     //////////////////////////////////////////////////////////////////////////*/
