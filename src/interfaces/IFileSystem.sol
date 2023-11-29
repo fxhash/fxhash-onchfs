@@ -14,6 +14,10 @@ interface IFileSystem {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
+     * @notice Error thrown when attempting to read chunk that does not exist
+     */
+    error ChunkNotFound();
+    /**
      * @notice Error thrown when reading a directory that does not exist
      */
     error DirectoryNotFound();
@@ -61,30 +65,30 @@ interface IFileSystem {
 
     /**
      * @notice Creates a new directory with the given names and file inode pointers
-     * @param _paths List of file paths in the directory
+     * @param _fileNames List of file paths in the directory
      * @param _fileChecksums Pointers to the file inodes in the directory
      */
     function createDirectory(
-        string[] calldata _paths,
+        string[] calldata _fileNames,
         bytes32[] calldata _fileChecksums
     ) external returns (bytes32 directoryChecksum);
 
     /**
      * @notice Creates a new file with the given metadata and chunk pointers
-     * @param _filename Metadata of the file
+     * @param _metadata Metadata of the file
      * @param _chunkChecksums Checksums for chunks of the file
      */
     function createFile(
-        bytes calldata _filename,
+        bytes calldata _metadata,
         bytes32[] calldata _chunkChecksums
     ) external returns (bytes32 fileChecksum);
 
     /**
      * @notice Hashes a list of file names in the directory
-     * @param _paths List of file names
+     * @param _fileNames List of file names
      * @return Hashed names
      */
-    function hashPaths(string[] calldata _paths) external view returns (bytes32[] memory);
+    function hashFileNames(string[] calldata _fileNames) external view returns (bytes32[] memory);
 
     /**
      * @notice Mapping of checksum pointer to Inode struct

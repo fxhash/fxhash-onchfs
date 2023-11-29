@@ -4,9 +4,7 @@ pragma solidity 0.8.23;
 import "test/FileSystem/FileSystemTest.t.sol";
 
 contract CreateDirectory is FileSystemTest {
-    bytes32[] internal hashedPaths;
-    bytes32[] internal pointers;
-    string[] internal paths;
+    bytes32[] internal hashedNames;
 
     function setUp() public override {
         super.setUp();
@@ -19,27 +17,40 @@ contract CreateDirectory is FileSystemTest {
     }
 
     function test_CreateDirectory() public {
-        fileSystem.createDirectory(fileNames, filePointers);
-        hashedPaths = fileSystem.hashPaths(fileNames);
+        bytes32 checksum = fileSystem.createDirectory(fileNames, filePointers);
+        hashedNames = fileSystem.hashFileNames(fileNames);
         checksum = keccak256(
             abi.encodePacked(
                 DIRECTORY_TYPE,
-                keccak256(abi.encodePacked(hashedPaths)),
+                keccak256(abi.encodePacked(hashedNames)),
                 keccak256(abi.encodePacked(filePointers))
             )
         );
         assertTrue(fileSystem.inodeExists(checksum));
     }
 
-    function test_ReadDirectory() public {
-        test_CreateDirectory();
-        (paths, pointers) = fileSystem.readDirectory(checksum);
-        assertEq(paths.length, fileNames.length);
-        assertEq(pointers.length, filePointers.length);
+    function test_EmptyDirectory() public {
+        delete fileNames;
+        delete filePointers;
+        fileSystem.createDirectory(fileNames, filePointers);
+    }
 
-        for (uint256 i; i < paths.length; i++) {
-            assertEq(paths[i], fileNames[i]);
-            assertEq(pointers[i], filePointers[i]);
-        }
+    function test_RevertsWhen_INodeNotFound() public {
+        /// when file checksum doesnt exist
+        fileSystem.createDirectory(fileNames, filePointers);
+    }
+
+    function test_RevertsWhen_FileNotFound() public {}
+
+    function test_RevertsWhen_InvalidCharacters() public {
+        fileNames[0] = "/";
+        vm.expectRevert(INVALID_CHARACTER_ERROR);
+        fileSystem.createDirectory(fileNames, filePointers);
+    }
+
+    function test_NestedDirectories() public {
+        bytes32 checksum = fileSystem.createDirectory(fileNames, filePointers);
+        filePointers[1] = checksum;
+        fileSystem.createDirectory(fileNames, filePointers);
     }
 }

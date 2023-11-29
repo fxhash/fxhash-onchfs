@@ -6,6 +6,7 @@ import "src/utils/Constants.sol";
 
 import {ContentStore} from "ethfs/packages/contracts/src/ContentStore.sol";
 import {FileSystem} from "src/FileSystem.sol";
+import {BytesLib} from "test/utils/BytesLib.sol";
 
 import {IContentStore} from "ethfs/packages/contracts/src/IContentStore.sol";
 import {IFileSystem} from "src/interfaces/IFileSystem.sol";
@@ -21,6 +22,7 @@ contract FileSystemTest is Test {
     string[] internal fileNames;
 
     // Errors
+    bytes4 internal immutable CHUNK_NOT_FOUND_ERROR = IFileSystem.ChunkNotFound.selector;
     bytes4 internal immutable DIRECTORY_NOT_FOUND_ERROR = IFileSystem.DirectoryNotFound.selector;
     bytes4 internal immutable FILE_NOT_FOUND_ERROR = IFileSystem.FileNotFound.selector;
     bytes4 internal immutable INODE_ALREADY_EXISTS_ERROR = IFileSystem.InodeAlreadyExists.selector;
