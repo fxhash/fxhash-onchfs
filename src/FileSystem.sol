@@ -148,9 +148,9 @@ contract FileSystem is IFileSystem {
     function inodeExists(bytes32 _checksum) public view returns (bool) {
         Inode memory inode = inodes[_checksum];
         if (inode.inodeType == InodeType.File) {
-            return inode.file.chunkChecksums.length != 0;
+            return inode.file.metadata.length != 0 || inode.file.chunkChecksums.length != 0;
         } else {
-            return inode.directory.fileChecksums.length != 0;
+            return inode.directory.filenames.length != 0 || inode.directory.fileChecksums.length != 0;
         }
     }
 
