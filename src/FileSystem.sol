@@ -162,7 +162,7 @@ contract FileSystem is IFileSystem {
      * @dev Checks if the given string contains any forbidden characters
      */
     function _containsForbiddenChars(bytes memory _stringToCheck) private pure returns (bool) {
-        uint256 length = bytes(_stringToCheck).length;
+        uint256 length = _stringToCheck.length;
         for (uint256 i; i < length; i++) {
             for (uint256 j; j < CHARACTER_LENGTH; j++) {
                 if (_stringToCheck[i] == FORBIDDEN_CHARS[j]) {
