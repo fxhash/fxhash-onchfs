@@ -30,12 +30,14 @@ contract ReadFile is FileSystemTest {
     }
 
     function test_RevertsWhen_ReadingDirectory() public {
+        bytes32 checksum1 = fileSystem.createFile(bytes("file1"), chunkChecksums);
+        bytes32 checksum2 = fileSystem.createFile(bytes("file2"), chunkChecksums);
         fileNames = new string[](2);
         fileNames[0] = "file1";
         fileNames[1] = "file2";
         filePointers = new bytes32[](2);
-        filePointers[0] = bytes32(uint256(1));
-        filePointers[1] = bytes32(uint256(2));
+        filePointers[0] = checksum1;
+        filePointers[1] = checksum2;
         bytes32 checksum = fileSystem.createDirectory(fileNames, filePointers);
         vm.expectRevert(FILE_NOT_FOUND_ERROR);
         fileSystem.readFile(checksum);

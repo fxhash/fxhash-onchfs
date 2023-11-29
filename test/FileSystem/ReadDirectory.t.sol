@@ -5,15 +5,21 @@ import "test/FileSystem/FileSystemTest.t.sol";
 
 contract ReadDirectory is FileSystemTest {
     bytes32[] internal hashedFileNames;
+    bytes internal metadata;
+    bytes internal fileContent;
+    bytes32[] internal chunkChecksums;
+    bytes32[] internal hashedNames;
+    bytes32 internal fileChecksum;
 
     function setUp() public override {
         super.setUp();
-        fileNames = new string[](2);
-        fileNames[0] = "file1";
-        fileNames[1] = "file2";
-        filePointers = new bytes32[](2);
-        filePointers[0] = bytes32(uint256(1));
-        filePointers[1] = bytes32(uint256(2));
+        metadata = "file metadata";
+        fileContent = bytes("asdf");
+        (bytes32 checksum, ) = IContentStore(contentStore).addContent(fileContent);
+        chunkChecksums.push(checksum);
+        fileChecksum = fileSystem.createFile(metadata, chunkChecksums);
+        fileNames.push("file1");
+        filePointers.push(fileChecksum);
     }
 
     function test_ReadDirectory() public {
@@ -41,7 +47,8 @@ contract ReadDirectory is FileSystemTest {
 
     function test_NestedDirectory() public {
         bytes32 checksum = fileSystem.createDirectory(fileNames, filePointers);
-        filePointers[1] = checksum;
+        fileNames.push("file2");
+        filePointers.push(checksum);
         checksum = fileSystem.createDirectory(fileNames, filePointers);
     }
 
@@ -51,12 +58,6 @@ contract ReadDirectory is FileSystemTest {
     }
 
     function test_RevertsWhen_ReadingFile() public {
-        bytes memory metadata = "file metadata";
-        bytes memory fileContent = bytes("asdf");
-        (bytes32 checksum, ) = IContentStore(contentStore).addContent(fileContent);
-        bytes32[] memory chunkChecksums = new bytes32[](1);
-        chunkChecksums[0] = checksum;
-        bytes32 fileChecksum = fileSystem.createFile(metadata, chunkChecksums);
         vm.expectRevert(DIRECTORY_NOT_FOUND_ERROR);
         fileSystem.readDirectory(fileChecksum);
     }
