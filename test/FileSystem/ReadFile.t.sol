@@ -42,9 +42,11 @@ contract ReadFile is FileSystemTest {
     }
 
     function test_WhenMultipleChunks() public {
-        chunkChecksums.push(chunkChecksums[0]);
+        bytes memory fileContent2 = bytes("hjkl");
+        (bytes32 content2Checksum, ) = IContentStore(contentStore).addContent(fileContent2);
+        chunkChecksums.push(content2Checksum);
         bytes32 checksum = fileSystem.createFile(metadata, chunkChecksums);
         bytes memory result = fileSystem.readFile(checksum);
-        assertEq(result, bytes.concat(fileContent, fileContent));
+        assertEq(result, bytes.concat(fileContent, fileContent2));
     }
 }
