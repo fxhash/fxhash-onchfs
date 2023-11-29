@@ -86,9 +86,13 @@ interface IFileSystem {
     /**
      * @notice Hashes a list of file names in the directory
      * @param _fileNames List of file names
+     * @param _inodeChecksums List of checksums for the inodes
      * @return Hashed names
      */
-    function hashFileNames(string[] calldata _fileNames) external view returns (bytes32[] memory);
+    function hashFiles(
+        string[] calldata _fileNames,
+        bytes32[] calldata _inodeChecksums
+    ) external view returns (bytes32[] memory);
 
     /**
      * @notice Mapping of checksum pointer to Inode struct

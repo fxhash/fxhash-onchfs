@@ -5,6 +5,4 @@ pragma solidity 0.8.23;
                                 CONSTANTS
 //////////////////////////////////////////////////////////////////////////*/
 
-// Characters
-uint256 constant CHARACTER_LENGTH = 18;
 bytes constant FORBIDDEN_CHARS = ":/?#[]@!$&'()*+,;=";
