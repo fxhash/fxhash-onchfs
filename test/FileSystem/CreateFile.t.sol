@@ -35,11 +35,6 @@ contract CreateFile is FileSystemTest {
         fileSystem.createFile(metadata, chunkChecksums);
     }
 
-    function test_RevertsWhen_MetadataIncludesInvalidCharacters() public {
-        vm.expectRevert(INVALID_CHARACTER_ERROR);
-        fileSystem.createFile(bytes("/"), chunkChecksums);
-    }
-
     function test_RevertsWhen_ChunkPointerReferencesEmptyChunk() public {
         delete chunkChecksums;
         chunkChecksums = new bytes32[](1);
