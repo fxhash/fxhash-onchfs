@@ -29,9 +29,7 @@ contract CreateFile is FileSystemTest {
     }
 
     function test_ReturnsCheckSum_DuplicateFile() public {
-        fileSystem.createFile(metadata, chunkChecksums);
-
-        fileSystem.createFile(metadata, chunkChecksums);
+        assertEq(fileSystem.createFile(metadata, chunkChecksums), fileSystem.createFile(metadata, chunkChecksums));
     }
 
     function test_RevertsWhen_ChunkPointerReferencesEmptyChunk() public {
