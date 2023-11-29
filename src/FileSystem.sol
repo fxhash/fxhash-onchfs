@@ -54,7 +54,7 @@ contract FileSystem is IFileSystem {
         bytes32[] memory hashedFilenames = hashFileNames(_fileNames);
         directoryChecksum = keccak256(
             bytes.concat(
-                DIRECTORY_TYPE,
+                bytes1(uint8(InodeType.Directory)),
                 keccak256(abi.encodePacked(hashedFilenames)),
                 keccak256(abi.encodePacked(_fileChecksums))
             )
@@ -76,7 +76,11 @@ contract FileSystem is IFileSystem {
             if (!IContentStore(CONTENT_STORE).checksumExists(_chunkPointers[i])) revert ChunkNotFound();
         }
         fileChecksum = keccak256(
-            bytes.concat(FILE_TYPE, keccak256(abi.encodePacked(_chunkPointers)), keccak256(_metadata))
+            bytes.concat(
+                bytes1(uint8(InodeType.File)),
+                keccak256(abi.encodePacked(_chunkPointers)),
+                keccak256(_metadata)
+            )
         );
         if (inodeExists(fileChecksum)) revert InodeAlreadyExists();
         File memory newFile = File(_metadata, _chunkPointers);
