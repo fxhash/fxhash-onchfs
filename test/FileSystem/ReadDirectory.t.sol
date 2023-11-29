@@ -21,7 +21,7 @@ contract ReadDirectory is FileSystemTest {
         hashedFileNames = fileSystem.hashFileNames(fileNames);
         checksum = keccak256(
             abi.encodePacked(
-                DIRECTORY_TYPE,
+                bytes1(uint8(InodeType.Directory)),
                 keccak256(abi.encodePacked(hashedFileNames)),
                 keccak256(abi.encodePacked(filePointers))
             )
