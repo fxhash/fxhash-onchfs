@@ -65,7 +65,7 @@ interface IFileSystem {
 
     /**
      * @notice Creates a new directory with the given names and file inode pointers
-     * @param _fileNames List of file paths in the directory
+     * @param _fileNames The name of the file in the directory
      * @param _fileChecksums Pointers to the file inodes in the directory
      */
     function createDirectory(

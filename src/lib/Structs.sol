@@ -11,7 +11,7 @@ enum InodeType {
 }
 
 struct Directory {
-    string[] paths;
+    string[] filenames;
     bytes32[] fileChecksums;
 }
 

@@ -99,7 +99,7 @@ contract FileSystem is IFileSystem {
         if (!inodeExists(_checksum)) revert InodeNotFound();
         Inode memory inode = inodes[_checksum];
         if (inode.inodeType != InodeType.Directory) revert DirectoryNotFound();
-        return (inode.directory.paths, inode.directory.fileChecksums);
+        return (inode.directory.filenames, inode.directory.fileChecksums);
     }
 
     /**
@@ -132,15 +132,15 @@ contract FileSystem is IFileSystem {
     /**
      * @inheritdoc IFileSystem
      */
-    function hashFileNames(string[] calldata _fileNames) public pure returns (bytes32[] memory hashedPaths) {
+    function hashFileNames(string[] calldata _fileNames) public pure returns (bytes32[] memory hashedFileNames) {
         uint256 length = _fileNames.length;
-        hashedPaths = new bytes32[](length);
+        hashedFileNames = new bytes32[](length);
         bytes memory filename;
         for (uint256 i; i < length; i++) {
             filename = bytes(_fileNames[i]);
             if (filename.length == 0) revert InvalidFileName();
             if (_containsForbiddenChars(filename)) revert InvalidCharacter();
-            hashedPaths[i] = keccak256(filename);
+            hashedFileNames[i] = keccak256(filename);
         }
     }
 
