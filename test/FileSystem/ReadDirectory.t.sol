@@ -38,4 +38,26 @@ contract ReadDirectory is FileSystemTest {
             assertEq(pointers[i], filePointers[i]);
         }
     }
+
+    function test_NestedDirectory() public {
+        bytes32 checksum = fileSystem.createDirectory(fileNames, filePointers);
+        filePointers[1] = checksum;
+        checksum = fileSystem.createDirectory(fileNames, filePointers);
+    }
+
+    function test_RevertsWhen_ChecksumDoesntExist() public {
+        vm.expectRevert(INODE_NOT_FOUND_ERROR);
+        fileSystem.readDirectory(checksum);
+    }
+
+    function test_RevertsWhen_ReadingFile() public {
+        bytes memory metadata = "file metadata";
+        bytes memory fileContent = bytes("asdf");
+        (bytes32 checksum, ) = IContentStore(contentStore).addContent(fileContent);
+        bytes32[] memory chunkChecksums = new bytes32[](1);
+        chunkChecksums[0] = checksum;
+        bytes32 fileChecksum = fileSystem.createFile(metadata, chunkChecksums);
+        vm.expectRevert(DIRECTORY_NOT_FOUND_ERROR);
+        fileSystem.readFile(fileChecksum);
+    }
 }

@@ -17,7 +17,7 @@ contract CreateDirectory is FileSystemTest {
     }
 
     function test_CreateDirectory() public {
-        fileSystem.createDirectory(fileNames, filePointers);
+        bytes32 checksum = fileSystem.createDirectory(fileNames, filePointers);
         hashedNames = fileSystem.hashFileNames(fileNames);
         checksum = keccak256(
             abi.encodePacked(
@@ -27,5 +27,30 @@ contract CreateDirectory is FileSystemTest {
             )
         );
         assertTrue(fileSystem.inodeExists(checksum));
+    }
+
+    function test_EmptyDirectory() public {
+        delete fileNames;
+        delete filePointers;
+        bytes32 checksum = fileSystem.createDirectory(fileNames, filePointers);
+    }
+
+    function test_RevertsWhen_INodeNotFound() public {
+        /// when file checksum doesnt exist
+        fileSystem.createDirectory(fileNames, filePointers);
+    }
+
+    function test_RevertsWhen_FileNotFound() public {}
+
+    function test_RevertsWhen_InvalidCharacters() public {
+        fileNames[0] = "/";
+        vm.expectRevert(INVALID_CHARACTER_ERROR);
+        fileSystem.createDirectory(fileNames, filePointers);
+    }
+
+    function test_NestedDirectories() public {
+        bytes32 checksum = fileSystem.createDirectory(fileNames, filePointers);
+        filePointers[1] = checksum;
+        fileSystem.createDirectory(fileNames, filePointers);
     }
 }
