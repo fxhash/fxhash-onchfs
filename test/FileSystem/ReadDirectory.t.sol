@@ -58,6 +58,6 @@ contract ReadDirectory is FileSystemTest {
         chunkChecksums[0] = checksum;
         bytes32 fileChecksum = fileSystem.createFile(metadata, chunkChecksums);
         vm.expectRevert(DIRECTORY_NOT_FOUND_ERROR);
-        fileSystem.readFile(fileChecksum);
+        fileSystem.readDirectory(fileChecksum);
     }
 }
