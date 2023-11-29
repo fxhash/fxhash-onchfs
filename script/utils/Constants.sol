@@ -12,6 +12,7 @@ uint256 constant HOLESKY = 17000;
 uint256 constant SEPOLIA = 11155111;
 
 // Scripts
+bytes constant metadata = new bytes(0x5f901d75d0620d263d4c741f71a0961ab4ff);
 string constant p5js = "p5-v1.5.0.min.js.gz";
 string constant threejs = "three-v0.147.0.min.js.gz";
 // Content Store

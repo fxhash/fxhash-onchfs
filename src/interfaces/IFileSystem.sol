@@ -32,6 +32,8 @@ interface IFileSystem {
      */
     error InodeNotFound();
 
+    error InvalidFileName();
+
     /**
      * @notice Error thrown when a forbidden character is present
      */

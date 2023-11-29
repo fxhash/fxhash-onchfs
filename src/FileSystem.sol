@@ -134,6 +134,7 @@ contract FileSystem is IFileSystem {
         uint256 length = _fileNames.length;
         hashedPaths = new bytes32[](length);
         for (uint256 i; i < length; i++) {
+            if (bytes(_fileNames[i]).length == 0) revert InvalidFileName();
             if (_containsForbiddenChars(_fileNames[i])) revert InvalidCharacter();
             hashedPaths[i] = keccak256(bytes(_fileNames[i]));
         }
@@ -145,11 +146,9 @@ contract FileSystem is IFileSystem {
     function inodeExists(bytes32 _checksum) public view returns (bool) {
         Inode memory inode = inodes[_checksum];
         if (inode.inodeType == InodeType.File) {
-            File memory file = inode.file;
-            return file.name.length != 0 || file.chunkChecksums.length != 0;
+            return inode.file.chunkChecksums.length != 0;
         } else {
-            Directory memory directory = inode.directory;
-            return directory.paths.length != 0 || directory.fileChecksums.length != 0;
+            return inode.directory.fileChecksums.length != 0;
         }
     }
 
