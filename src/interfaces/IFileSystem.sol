@@ -10,6 +10,20 @@ import {Directory, File, Inode, InodeType} from "src/lib/Structs.sol";
  */
 interface IFileSystem {
     /*//////////////////////////////////////////////////////////////////////////
+                                  Events
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @notice Event emitted when creating a new file inode
+     */
+    event FileCreated(bytes32 indexed _checksum, bytes metadata, bytes32[] _chunkPointers);
+
+    /**
+     * @notice Event emitted when creating a new directory inode
+     */
+    event DirectoryCreated(bytes32 indexed _checksum, string[] _names, bytes32[] _inodeChecksums);
+
+    /*//////////////////////////////////////////////////////////////////////////
                                   ERRORS
     //////////////////////////////////////////////////////////////////////////*/
 
