@@ -66,6 +66,7 @@ contract FileSystem is IFileSystem {
         if (inodeExists(directoryChecksum)) revert InodeAlreadyExists();
         Directory memory newDirectory = Directory(_fileNames, _inodeChecksums);
         inodes[directoryChecksum] = Inode(InodeType.Directory, File(bytes(""), new bytes32[](0)), newDirectory);
+        emit DirectoryCreated(directoryChecksum, _fileNames, _inodeChecksums);
     }
 
     /**
@@ -88,6 +89,7 @@ contract FileSystem is IFileSystem {
         if (inodeExists(fileChecksum)) revert InodeAlreadyExists();
         File memory newFile = File(_metadata, _chunkPointers);
         inodes[fileChecksum] = Inode(InodeType.File, newFile, Directory(new string[](0), new bytes32[](0)));
+        emit FileCreated(fileChecksum, _metadata, _chunkPointers);
     }
 
     /**
