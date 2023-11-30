@@ -33,7 +33,7 @@ contract GetInodeAt is FileSystemTest {
         assertEq(result, expectedChecksum);
     }
 
-    function test_RevertsWhen_InodeDoesntExist() public {
+    function test_RevertsWhen_InodeDoesntExistAtPath() public {
         bytes32 checksum = fileSystem.createDirectory(fileNames, filePointers);
         string[] memory pathSegments = new string[](1);
         pathSegments[0] = "file";
@@ -46,5 +46,14 @@ contract GetInodeAt is FileSystemTest {
         string[] memory pathSegments = new string[](0);
         (bytes32 result, ) = fileSystem.getInodeAt(checksum, pathSegments);
         assertEq(checksum, result);
+    }
+
+    function test_RevertsWhen_StartingInodeDoesntExist() public {
+        fileSystem.createDirectory(fileNames, filePointers);
+
+        string[] memory pathSegments = new string[](1);
+        pathSegments[0] = "file";
+        vm.expectRevert(INODE_NOT_FOUND_ERROR);
+        fileSystem.getInodeAt(bytes32(0), pathSegments);
     }
 }
