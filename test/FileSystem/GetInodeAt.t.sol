@@ -56,4 +56,8 @@ contract GetInodeAt is FileSystemTest {
         vm.expectRevert(INODE_NOT_FOUND_ERROR);
         fileSystem.getInodeAt(bytes32(0), pathSegments);
     }
+
+    function test_RevertsWhen_FileInPath() public {}
+
+    function test_RevertsWhen_EmptyDirectoryInPath() public {}
 }
