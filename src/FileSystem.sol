@@ -192,7 +192,7 @@ contract FileSystem is IFileSystem {
             for (uint256 j; j < filenames.length; j++) {
                 if (keccak256(bytes(filenames[j])) == keccak256(bytes(_pathSegments[i]))) {
                     found = true;
-                    inodeChecksum = directory.fileChecksums[i];
+                    inodeChecksum = directory.fileChecksums[j];
                     inode = inodes[inodeChecksum];
                     break;
                 }

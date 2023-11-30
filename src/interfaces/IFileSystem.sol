@@ -83,6 +83,11 @@ interface IFileSystem {
         bytes32[] calldata _chunkChecksums
     ) external returns (bytes32 fileChecksum);
 
+    function getInodeAt(
+        bytes32 _inodeChecksum,
+        string[] memory _pathSegments
+    ) external view returns (bytes32, Inode memory);
+
     /**
      * @notice Hashes a list of file names in the directory
      * @param _fileNames List of file names
