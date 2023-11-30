@@ -25,9 +25,7 @@ contract ReadDirectory is FileSystemTest {
     function test_ReadDirectory() public {
         fileSystem.createDirectory(fileNames, filePointers);
         hashedFiles = fileSystem.concatenateFiles(fileNames, filePointers);
-        checksum = keccak256(
-            abi.encodePacked(bytes1(uint8(InodeType.Directory)), keccak256(abi.encodePacked(hashedFiles)))
-        );
+        checksum = keccak256(abi.encodePacked(bytes1(uint8(InodeType.Directory)), hashedFiles));
 
         bytes32[] memory pointers;
         string[] memory fileNameResults;
