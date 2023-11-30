@@ -6,17 +6,17 @@ pragma solidity 0.8.23;
 //////////////////////////////////////////////////////////////////////////*/
 
 enum InodeType {
-    File,
-    Directory
+    Directory,
+    File
 }
 
 struct Directory {
-    string[] paths;
+    string[] filenames;
     bytes32[] fileChecksums;
 }
 
 struct File {
-    bytes name;
+    bytes metadata;
     bytes32[] chunkChecksums;
 }
 

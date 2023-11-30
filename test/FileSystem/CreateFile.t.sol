@@ -28,11 +28,8 @@ contract CreateFile is FileSystemTest {
         assertTrue(fileSystem.inodeExists(checksum));
     }
 
-    function test_RevertsWhen_DuplicateFile() public {
-        fileSystem.createFile(metadata, chunkChecksums);
-
-        vm.expectRevert(INODE_ALREADY_EXISTS_ERROR);
-        fileSystem.createFile(metadata, chunkChecksums);
+    function test_ReturnsCheckSum_DuplicateFile() public {
+        assertEq(fileSystem.createFile(metadata, chunkChecksums), fileSystem.createFile(metadata, chunkChecksums));
     }
 
     function test_RevertsWhen_ChunkPointerReferencesEmptyChunk() public {

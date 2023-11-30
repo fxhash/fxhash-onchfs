@@ -7,7 +7,7 @@ contract CreateDirectory is FileSystemTest {
     bytes internal metadata;
     bytes internal fileContent;
     bytes32[] internal chunkChecksums;
-    bytes32[] internal hashedNames;
+    bytes32[] internal hashedFiles;
     bytes32 internal fileChecksum;
 
     function setUp() public override {
@@ -23,13 +23,9 @@ contract CreateDirectory is FileSystemTest {
 
     function test_CreateDirectory() public {
         bytes32 checksum = fileSystem.createDirectory(fileNames, filePointers);
-        hashedNames = fileSystem.hashFileNames(fileNames);
+        hashedFiles = fileSystem.hashFiles(fileNames, filePointers);
         checksum = keccak256(
-            abi.encodePacked(
-                bytes1(uint8(InodeType.Directory)),
-                keccak256(abi.encodePacked(hashedNames)),
-                keccak256(abi.encodePacked(filePointers))
-            )
+            abi.encodePacked(bytes1(uint8(InodeType.Directory)), keccak256(abi.encodePacked(hashedFiles)))
         );
         assertTrue(fileSystem.inodeExists(checksum));
     }
@@ -43,6 +39,12 @@ contract CreateDirectory is FileSystemTest {
     function test_RevertsWhen_INodeNotFound() public {
         filePointers[0] = keccak256(abi.encode("NON_EXISTENT"));
         vm.expectRevert(INODE_NOT_FOUND_ERROR);
+        fileSystem.createDirectory(fileNames, filePointers);
+    }
+
+    function test_RevertsWhen_FileNameEmpty() public {
+        fileNames[0] = "";
+        vm.expectRevert(INVALID_FILENAME_ERROR);
         fileSystem.createDirectory(fileNames, filePointers);
     }
 

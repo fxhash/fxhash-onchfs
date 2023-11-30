@@ -42,14 +42,14 @@ interface IFileSystem {
     error FileNotFound();
 
     /**
-     * @notice Error thrown when the checksum is already associated with an inode
-     */
-    error InodeAlreadyExists();
-
-    /**
      * @notice Error thrown when attempting to read an inode that does not exist
      */
     error InodeNotFound();
+
+    /**
+     * @notice Error thrown when file name is empty
+     */
+    error InvalidFileName();
 
     /**
      * @notice Error thrown when a forbidden character is present
@@ -79,7 +79,7 @@ interface IFileSystem {
 
     /**
      * @notice Creates a new directory with the given names and file inode pointers
-     * @param _fileNames List of file paths in the directory
+     * @param _fileNames The names of the files in the directory
      * @param _fileChecksums Pointers to the file inodes in the directory
      */
     function createDirectory(
@@ -100,9 +100,13 @@ interface IFileSystem {
     /**
      * @notice Hashes a list of file names in the directory
      * @param _fileNames List of file names
+     * @param _inodeChecksums List of checksums for the inodes
      * @return Hashed names
      */
-    function hashFileNames(string[] calldata _fileNames) external view returns (bytes32[] memory);
+    function hashFiles(
+        string[] calldata _fileNames,
+        bytes32[] calldata _inodeChecksums
+    ) external view returns (bytes32[] memory);
 
     /**
      * @notice Mapping of checksum pointer to Inode struct
