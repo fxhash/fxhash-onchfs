@@ -169,4 +169,35 @@ contract FileSystem is IFileSystem {
         }
         return false;
     }
+
+    function getInodeAt(
+        bytes32 _inodeChecksum,
+        string[] memory _pathSegments
+    ) public view returns (bytes32, Inode memory) {
+        if (!inodeExists(_inodeChecksum)) revert InodeNotFound();
+
+        Inode memory inode = inodes[_inodeChecksum];
+        bytes32 inodeChecksum = _inodeChecksum;
+
+        uint256 length = _pathSegments.length;
+        Directory memory directory;
+        string[] memory filenames;
+        bool found;
+        for (uint256 i; i < length; i++) {
+            if (inode.inodeType != InodeType.Directory) revert InodeNotFound();
+            directory = inode.directory;
+            filenames = inode.directory.filenames;
+            found = false;
+            for (uint256 j; j < filenames.length; j++) {
+                if (keccak256(bytes(filenames[j])) == keccak256(bytes(_pathSegments[i]))) {
+                    found = true;
+                    inodeChecksum = directory.fileChecksums[j];
+                    inode = inodes[inodeChecksum];
+                    break;
+                }
+            }
+            if (!found) revert InodeNotFound();
+        }
+        return (inodeChecksum, inode);
+    }
 }
