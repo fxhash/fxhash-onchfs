@@ -6,29 +6,31 @@ import {FileSystem} from "src/FileSystem.sol";
 
 import "script/utils/Constants.sol";
 
-contract FileSystemTest is Script {
-    // Contracts
-    FileSystem internal fileSystem;
-
-    // State
-    address internal contentStore;
-    address internal fileStore;
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                     SETUP
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function setUp() public virtual {
-        contentStore = (block.chainid == MAINNET) ? MAINNET_CONTENT_STORE : GOERLI_CONTENT_STORE;
-        fileStore = (block.chainid == MAINNET) ? MAINNET_FILE_STORE : GOERLI_FILE_STORE;
-    }
-
+contract Deploy is Script {
     /*//////////////////////////////////////////////////////////////////////////
                                       RUN
     //////////////////////////////////////////////////////////////////////////*/
     function run() public virtual {
+        bytes32 salt = keccak256(abi.encode("ONCHFS"));
+        bytes memory creationCode = type(FileSystem).creationCode;
         vm.startBroadcast();
-        fileSystem = new FileSystem(contentStore);
+        _deployCreate2(creationCode, salt);
         vm.stopBroadcast();
+    }
+
+    function _deployCreate2(bytes memory _creationCode, bytes32 _salt) internal returns (address deployedAddr) {
+        deployedAddr = _deployCreate2(_creationCode, bytes(""), _salt);
+    }
+
+    function _deployCreate2(
+        bytes memory _creationCode,
+        bytes memory _constructorArgs,
+        bytes32 _salt
+    ) internal returns (address deployedAddr) {
+        (bool success, bytes memory response) = CREATE2_FACTORY.call(
+            bytes.concat(_salt, _creationCode, _constructorArgs)
+        );
+        deployedAddr = address(bytes20(response));
+        require(success, "deployment failed");
     }
 }

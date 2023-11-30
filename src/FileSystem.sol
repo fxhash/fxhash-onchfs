@@ -18,6 +18,9 @@ contract FileSystem is IFileSystem {
                                     STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
+    address internal constant GOERLI_CONTENT_STORE = 0x7c1730B7bE9424D0b983B84aEb254e3a2a105d91;
+    address internal constant MAINNET_CONTENT_STORE = 0xC6806fd75745bB5F5B32ADa19963898155f9DB91;
+
     /**
      * @inheritdoc IFileSystem
      */
@@ -35,8 +38,8 @@ contract FileSystem is IFileSystem {
     /**
      * @dev Initializes the ContentStore contract
      */
-    constructor(address _contentStore) {
-        CONTENT_STORE = _contentStore;
+    constructor() {
+        CONTENT_STORE = block.chainid == 1 ? MAINNET_CONTENT_STORE : GOERLI_CONTENT_STORE;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
