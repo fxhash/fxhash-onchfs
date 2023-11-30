@@ -171,27 +171,42 @@ contract FileSystem is IFileSystem {
         return false;
     }
 
-    // function getInodeAt(
-    //     bytes32 _inodeChecksum,
-    //     string[] memory _pathSegments
-    // ) public view returns (bytes32 inodeChecksum) {
-    //     if (!inodeExists(_inodeChecksum)) revert InodeNotFound();
-    //     Inode memory inode = inodes[_inodeChecksum];
-    //     bytes32 inodeChecksum = _inodeChecksum;
-    //
-    //     uint256 length = _pathSegments.length;
-    //     Directory memory directory;
-    //     string memory filenames;
-    //     for (uint256 i; i < length; i++) {
-    //         if (inode.inodeType != InodeType.Directory) revert InodeNotFound();
-    //         directory = inode.directory;
-    //         filenames = inode.directory.filenames;
-    //         for (uint256 i; i < filenames.length; i++) {
-    //             // check if filename not in list of inodes
-    //             // set that as directory and continue traversing
-    //         }
-    //     }
-    // }
+    function getInodeAt(
+        bytes32 _inodeChecksum,
+        string[] memory _pathSegments
+    ) public view returns (bytes32 inodeChecksum) {
+        if (!inodeExists(_inodeChecksum)) revert InodeNotFound();
+
+        Inode memory inode = inodes[_inodeChecksum];
+        bytes32 inodeChecksum = _inodeChecksum;
+    
+        uint256 length = _pathSegments.length;
+        Directory memory directory;
+        string memory filenames;
+        bool found;
+        
+        for (uint256 i; i < length; i++) {
+            if (inode.inodeType != InodeType.Directory) revert InodeNotFound();
+            directory = inode.directory;
+            filenames = inode.directory.filenames;
+            found = false;
+            for (uint256 j; j < filenames.length; j++) {
+                if (filenames[j] == _pathSegments[i]) {
+                    found = true;
+                    inodeChecksum = directory.fileChecksums[i]
+                    inode = inodes[inodeChecksum]
+                    break
+                }
+            }
+            if (!found) revert InodeNotFound();
+        }
+
+        // better format here
+        return (
+            inodeChecksum,
+            inode
+        )
+    }
     //
     // @sp.onchain_view()
     // def get_inode_at(self, uri):
