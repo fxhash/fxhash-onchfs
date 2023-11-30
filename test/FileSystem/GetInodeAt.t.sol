@@ -41,7 +41,7 @@ contract GetInodeAt is FileSystemTest {
         fileSystem.getInodeAt(checksum, pathSegments);
     }
 
-    function test_NoPathSegmentsPassed() public {
+    function test_NoPathSegments() public {
         bytes32 checksum = fileSystem.createDirectory(fileNames, filePointers);
         string[] memory pathSegments = new string[](0);
         (bytes32 result, ) = fileSystem.getInodeAt(checksum, pathSegments);
