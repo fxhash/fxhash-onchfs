@@ -7,7 +7,7 @@ contract CreateDirectory is FileSystemTest {
     bytes internal metadata;
     bytes internal fileContent;
     bytes32[] internal chunkChecksums;
-    bytes32[] internal hashedFiles;
+    bytes internal hashedFiles;
     bytes32 internal fileChecksum;
 
     function setUp() public override {
@@ -23,7 +23,7 @@ contract CreateDirectory is FileSystemTest {
 
     function test_CreateDirectory() public {
         bytes32 checksum = fileSystem.createDirectory(fileNames, filePointers);
-        hashedFiles = fileSystem.hashFiles(fileNames, filePointers);
+        hashedFiles = fileSystem.concatenateFiles(fileNames, filePointers);
         checksum = keccak256(
             abi.encodePacked(bytes1(uint8(InodeType.Directory)), keccak256(abi.encodePacked(hashedFiles)))
         );

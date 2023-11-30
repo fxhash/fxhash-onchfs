@@ -51,14 +51,12 @@ contract FileSystem is IFileSystem {
         bytes32[] calldata _inodeChecksums
     ) external returns (bytes32 directoryChecksum) {
         if (_fileNames.length != _inodeChecksums.length) revert LengthMismatch();
-        bytes32[] memory hashedFiles = hashFiles(_fileNames, _inodeChecksums);
+        bytes memory concatenatedFiles = concatenateFiles(_fileNames, _inodeChecksums);
 
         for (uint256 i; i < _inodeChecksums.length; i++) {
             if (!inodeExists(_inodeChecksums[i])) revert InodeNotFound();
         }
-        directoryChecksum = keccak256(
-            bytes.concat(bytes1(uint8(InodeType.Directory)), keccak256(abi.encodePacked(hashedFiles)))
-        );
+        directoryChecksum = keccak256(bytes.concat(bytes1(uint8(InodeType.Directory)), keccak256(concatenatedFiles)));
         if (inodeExists(directoryChecksum)) return directoryChecksum;
         inodes[directoryChecksum].directory = Directory(_fileNames, _inodeChecksums);
         emit DirectoryCreated(directoryChecksum, _fileNames, _inodeChecksums);
@@ -127,18 +125,17 @@ contract FileSystem is IFileSystem {
     /**
      * @inheritdoc IFileSystem
      */
-    function hashFiles(
+    function concatenateFiles(
         string[] calldata _fileNames,
         bytes32[] calldata _filePointers
-    ) public pure returns (bytes32[] memory hashedFiles) {
+    ) public pure returns (bytes memory concatenatedFiles) {
         uint256 length = _fileNames.length;
-        hashedFiles = new bytes32[](length);
         bytes memory filename;
         for (uint256 i; i < length; i++) {
             filename = bytes(_fileNames[i]);
             if (filename.length == 0) revert InvalidFileName();
             if (_containsForbiddenChars(filename)) revert InvalidCharacter();
-            hashedFiles[i] = keccak256(bytes.concat(keccak256(filename), keccak256(bytes.concat(_filePointers[i]))));
+            concatenatedFiles = abi.encodePacked(concatenatedFiles, keccak256(filename), _filePointers[i]);
         }
     }
 

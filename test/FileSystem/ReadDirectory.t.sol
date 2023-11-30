@@ -4,7 +4,7 @@ pragma solidity 0.8.23;
 import "test/FileSystem/FileSystemTest.t.sol";
 
 contract ReadDirectory is FileSystemTest {
-    bytes32[] internal hashedFiles;
+    bytes internal hashedFiles;
     bytes internal metadata;
     bytes internal fileContent;
     bytes32[] internal chunkChecksums;
@@ -24,7 +24,7 @@ contract ReadDirectory is FileSystemTest {
 
     function test_ReadDirectory() public {
         fileSystem.createDirectory(fileNames, filePointers);
-        hashedFiles = fileSystem.hashFiles(fileNames, filePointers);
+        hashedFiles = fileSystem.concatenateFiles(fileNames, filePointers);
         checksum = keccak256(
             abi.encodePacked(bytes1(uint8(InodeType.Directory)), keccak256(abi.encodePacked(hashedFiles)))
         );

@@ -101,12 +101,12 @@ interface IFileSystem {
      * @notice Hashes a list of file names in the directory
      * @param _fileNames List of file names
      * @param _inodeChecksums List of checksums for the inodes
-     * @return Hashed names
+     * @return The concatenated files
      */
-    function hashFiles(
+    function concatenateFiles(
         string[] calldata _fileNames,
         bytes32[] calldata _inodeChecksums
-    ) external view returns (bytes32[] memory);
+    ) external view returns (bytes memory);
 
     /**
      * @notice Mapping of checksum pointer to Inode struct
