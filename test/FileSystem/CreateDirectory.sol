@@ -24,9 +24,7 @@ contract CreateDirectory is FileSystemTest {
     function test_CreateDirectory() public {
         bytes32 checksum = fileSystem.createDirectory(fileNames, filePointers);
         hashedFiles = fileSystem.concatenateFiles(fileNames, filePointers);
-        checksum = keccak256(
-            abi.encodePacked(bytes1(uint8(InodeType.Directory)), keccak256(abi.encodePacked(hashedFiles)))
-        );
+        checksum = keccak256(bytes.concat(bytes1(uint8(InodeType.Directory)), hashedFiles));
         assertTrue(fileSystem.inodeExists(checksum));
     }
 

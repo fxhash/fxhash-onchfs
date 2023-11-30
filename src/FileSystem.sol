@@ -56,7 +56,7 @@ contract FileSystem is IFileSystem {
         for (uint256 i; i < _inodeChecksums.length; i++) {
             if (!inodeExists(_inodeChecksums[i])) revert InodeNotFound();
         }
-        directoryChecksum = keccak256(bytes.concat(bytes1(uint8(InodeType.Directory)), keccak256(concatenatedFiles)));
+        directoryChecksum = keccak256(bytes.concat(bytes1(uint8(InodeType.Directory)), concatenatedFiles));
         if (inodeExists(directoryChecksum)) return directoryChecksum;
         inodes[directoryChecksum].directory = Directory(_fileNames, _inodeChecksums);
         emit DirectoryCreated(directoryChecksum, _fileNames, _inodeChecksums);
@@ -135,7 +135,7 @@ contract FileSystem is IFileSystem {
             filename = bytes(_fileNames[i]);
             if (filename.length == 0) revert InvalidFileName();
             if (_containsForbiddenChars(filename)) revert InvalidCharacter();
-            concatenatedFiles = abi.encodePacked(concatenatedFiles, keccak256(filename), _filePointers[i]);
+            concatenatedFiles = abi.encodePacked(_filePointers[i], keccak256(filename), concatenatedFiles);
         }
     }
 
