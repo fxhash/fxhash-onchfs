@@ -6,10 +6,6 @@ import "test/FileSystem/FileSystemTest.t.sol";
 contract CreateFile is FileSystemTest {
     function setUp() public override {
         super.setUp();
-        metadata = "file metadata";
-        fileContent = bytes("asdf");
-        (bytes32 checksum, ) = IContentStore(contentStore).addContent(fileContent);
-        chunkChecksums.push(checksum);
     }
 
     function test_CreateFile() public {
