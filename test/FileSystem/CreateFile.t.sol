@@ -4,10 +4,6 @@ pragma solidity 0.8.23;
 import "test/FileSystem/FileSystemTest.t.sol";
 
 contract CreateFile is FileSystemTest {
-    bytes internal metadata;
-    bytes internal fileContent;
-    bytes32[] internal chunkChecksums;
-
     function setUp() public override {
         super.setUp();
         metadata = "file metadata";

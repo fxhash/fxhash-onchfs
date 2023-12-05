@@ -18,13 +18,10 @@ contract FileSystem is IFileSystem {
                                     STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
-    address internal constant GOERLI_CONTENT_STORE = 0x7c1730B7bE9424D0b983B84aEb254e3a2a105d91;
-    address internal constant MAINNET_CONTENT_STORE = 0xC6806fd75745bB5F5B32ADa19963898155f9DB91;
-
     /**
      * @inheritdoc IFileSystem
      */
-    address public immutable CONTENT_STORE;
+    address public immutable contentStore;
 
     /**
      * @inheritdoc IFileSystem
@@ -38,8 +35,8 @@ contract FileSystem is IFileSystem {
     /**
      * @dev Initializes the ContentStore contract
      */
-    constructor() {
-        CONTENT_STORE = block.chainid == 1 ? MAINNET_CONTENT_STORE : GOERLI_CONTENT_STORE;
+    constructor(address _contentStore) {
+        contentStore = _contentStore;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -73,7 +70,7 @@ contract FileSystem is IFileSystem {
         bytes32[] calldata _chunkPointers
     ) external returns (bytes32 fileChecksum) {
         for (uint256 i; i < _chunkPointers.length; i++) {
-            if (!IContentStore(CONTENT_STORE).checksumExists(_chunkPointers[i])) revert ChunkNotFound();
+            if (!IContentStore(contentStore).checksumExists(_chunkPointers[i])) revert ChunkNotFound();
         }
         fileChecksum = keccak256(
             bytes.concat(
@@ -119,7 +116,7 @@ contract FileSystem is IFileSystem {
         address pointer;
         bytes memory chunkContent;
         for (uint256 i; i < _pointers.length; i++) {
-            pointer = IContentStore(CONTENT_STORE).getPointer(_pointers[i]);
+            pointer = IContentStore(contentStore).getPointer(_pointers[i]);
             chunkContent = SSTORE2.read(pointer);
             fileContent = abi.encodePacked(fileContent, chunkContent);
         }
@@ -139,6 +136,37 @@ contract FileSystem is IFileSystem {
             if (filename.length == 0) revert InvalidFileName();
             if (_containsForbiddenChars(filename)) revert InvalidCharacter();
             concatenatedFiles = abi.encodePacked(_filePointers[i], keccak256(filename), concatenatedFiles);
+        }
+    }
+
+    /**
+     * @inheritdoc IFileSystem
+     */
+    function getInodeAt(
+        bytes32 _inodeChecksum,
+        string[] memory _pathSegments
+    ) public view returns (bytes32 inodeChecksum, Inode memory inode) {
+        if (!inodeExists(_inodeChecksum)) revert InodeNotFound();
+        inode = inodes[_inodeChecksum];
+        inodeChecksum = _inodeChecksum;
+        uint256 length = _pathSegments.length;
+        Directory memory directory;
+        string[] memory filenames;
+        bool found;
+        for (uint256 i; i < length; i++) {
+            if (inode.inodeType != InodeType.Directory) revert InodeNotFound();
+            directory = inode.directory;
+            filenames = inode.directory.filenames;
+            found = false;
+            for (uint256 j; j < filenames.length; j++) {
+                if (keccak256(bytes(filenames[j])) == keccak256(bytes(_pathSegments[i]))) {
+                    found = true;
+                    inodeChecksum = directory.fileChecksums[j];
+                    inode = inodes[inodeChecksum];
+                    break;
+                }
+            }
+            if (!found) revert InodeNotFound();
         }
     }
 
@@ -171,36 +199,5 @@ contract FileSystem is IFileSystem {
             }
         }
         return false;
-    }
-
-    function getInodeAt(
-        bytes32 _inodeChecksum,
-        string[] memory _pathSegments
-    ) public view returns (bytes32, Inode memory) {
-        if (!inodeExists(_inodeChecksum)) revert InodeNotFound();
-
-        Inode memory inode = inodes[_inodeChecksum];
-        bytes32 inodeChecksum = _inodeChecksum;
-
-        uint256 length = _pathSegments.length;
-        Directory memory directory;
-        string[] memory filenames;
-        bool found;
-        for (uint256 i; i < length; i++) {
-            if (inode.inodeType != InodeType.Directory) revert InodeNotFound();
-            directory = inode.directory;
-            filenames = inode.directory.filenames;
-            found = false;
-            for (uint256 j; j < filenames.length; j++) {
-                if (keccak256(bytes(filenames[j])) == keccak256(bytes(_pathSegments[i]))) {
-                    found = true;
-                    inodeChecksum = directory.fileChecksums[j];
-                    inode = inodes[inodeChecksum];
-                    break;
-                }
-            }
-            if (!found) revert InodeNotFound();
-        }
-        return (inodeChecksum, inode);
     }
 }

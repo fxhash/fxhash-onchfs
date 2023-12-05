@@ -4,13 +4,6 @@ pragma solidity 0.8.23;
 import "test/FileSystem/FileSystemTest.t.sol";
 
 contract ReadDirectory is FileSystemTest {
-    bytes internal hashedFiles;
-    bytes internal metadata;
-    bytes internal fileContent;
-    bytes32[] internal chunkChecksums;
-    bytes32[] internal hashedNames;
-    bytes32 internal fileChecksum;
-
     function setUp() public override {
         super.setUp();
         metadata = "file metadata";

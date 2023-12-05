@@ -14,14 +14,14 @@ interface IFileSystem {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @notice Event emitted when creating a new file inode
-     */
-    event FileCreated(bytes32 indexed _checksum, bytes metadata, bytes32[] _chunkPointers);
-
-    /**
      * @notice Event emitted when creating a new directory inode
      */
     event DirectoryCreated(bytes32 indexed _checksum, string[] _names, bytes32[] _inodeChecksums);
+
+    /**
+     * @notice Event emitted when creating a new file inode
+     */
+    event FileCreated(bytes32 indexed _checksum, bytes metadata, bytes32[] _chunkPointers);
 
     /*//////////////////////////////////////////////////////////////////////////
                                   ERRORS
@@ -31,6 +31,7 @@ interface IFileSystem {
      * @notice Error thrown when attempting to read chunk that does not exist
      */
     error ChunkNotFound();
+
     /**
      * @notice Error thrown when reading a directory that does not exist
      */
@@ -47,14 +48,14 @@ interface IFileSystem {
     error InodeNotFound();
 
     /**
-     * @notice Error thrown when file name is empty
-     */
-    error InvalidFileName();
-
-    /**
      * @notice Error thrown when a forbidden character is present
      */
     error InvalidCharacter();
+
+    /**
+     * @notice Error thrown when file name is empty
+     */
+    error InvalidFileName();
 
     /**
      * @notice Error thrown when array lengths do not match
@@ -73,9 +74,20 @@ interface IFileSystem {
     function concatenateChunks(bytes32[] memory _chunkChecksums) external view returns (bytes memory);
 
     /**
+     * @notice Hashes a list of file names in the directory
+     * @param _fileNames List of file names
+     * @param _inodeChecksums List of checksums for the inodes
+     * @return The concatenated files
+     */
+    function concatenateFiles(
+        string[] calldata _fileNames,
+        bytes32[] calldata _inodeChecksums
+    ) external view returns (bytes memory);
+
+    /**
      * @notice Returns the address of the ContentStore contract
      */
-    function CONTENT_STORE() external view returns (address);
+    function contentStore() external view returns (address);
 
     /**
      * @notice Creates a new directory with the given names and file inode pointers
@@ -97,21 +109,15 @@ interface IFileSystem {
         bytes32[] calldata _chunkChecksums
     ) external returns (bytes32 fileChecksum);
 
+    /**
+     * @notice Gets inode within list of path segments
+     * @param _inodeChecksum Checksum value of inode
+     * @param _pathSegments List of path segments
+     */
     function getInodeAt(
         bytes32 _inodeChecksum,
         string[] memory _pathSegments
     ) external view returns (bytes32, Inode memory);
-
-    /**
-     * @notice Hashes a list of file names in the directory
-     * @param _fileNames List of file names
-     * @param _inodeChecksums List of checksums for the inodes
-     * @return The concatenated files
-     */
-    function concatenateFiles(
-        string[] calldata _fileNames,
-        bytes32[] calldata _inodeChecksums
-    ) external view returns (bytes memory);
 
     /**
      * @notice Mapping of checksum pointer to Inode struct
