@@ -88,6 +88,37 @@ contract FileSystem is IFileSystem {
     /**
      * @inheritdoc IFileSystem
      */
+    function getInodeAt(
+        bytes32 _inodeChecksum,
+        string[] memory _pathSegments
+    ) external view returns (bytes32 inodeChecksum, Inode memory inode) {
+        if (!inodeExists(_inodeChecksum)) revert InodeNotFound();
+        inode = inodes[_inodeChecksum];
+        inodeChecksum = _inodeChecksum;
+        uint256 length = _pathSegments.length;
+        Directory memory directory;
+        string[] memory filenames;
+        bool found;
+        for (uint256 i; i < length; i++) {
+            if (inode.inodeType != InodeType.Directory) revert InodeNotFound();
+            directory = inode.directory;
+            filenames = inode.directory.filenames;
+            found = false;
+            for (uint256 j; j < filenames.length; j++) {
+                if (keccak256(bytes(filenames[j])) == keccak256(bytes(_pathSegments[i]))) {
+                    found = true;
+                    inodeChecksum = directory.fileChecksums[j];
+                    inode = inodes[inodeChecksum];
+                    break;
+                }
+            }
+            if (!found) revert InodeNotFound();
+        }
+    }
+
+    /**
+     * @inheritdoc IFileSystem
+     */
     function readDirectory(bytes32 _checksum) external view returns (string[] memory, bytes32[] memory) {
         if (!inodeExists(_checksum)) revert InodeNotFound();
         Inode memory inode = inodes[_checksum];
@@ -136,37 +167,6 @@ contract FileSystem is IFileSystem {
             if (filename.length == 0) revert InvalidFileName();
             if (_containsForbiddenChars(filename)) revert InvalidCharacter();
             concatenatedFiles = abi.encodePacked(_filePointers[i], keccak256(filename), concatenatedFiles);
-        }
-    }
-
-    /**
-     * @inheritdoc IFileSystem
-     */
-    function getInodeAt(
-        bytes32 _inodeChecksum,
-        string[] memory _pathSegments
-    ) public view returns (bytes32 inodeChecksum, Inode memory inode) {
-        if (!inodeExists(_inodeChecksum)) revert InodeNotFound();
-        inode = inodes[_inodeChecksum];
-        inodeChecksum = _inodeChecksum;
-        uint256 length = _pathSegments.length;
-        Directory memory directory;
-        string[] memory filenames;
-        bool found;
-        for (uint256 i; i < length; i++) {
-            if (inode.inodeType != InodeType.Directory) revert InodeNotFound();
-            directory = inode.directory;
-            filenames = inode.directory.filenames;
-            found = false;
-            for (uint256 j; j < filenames.length; j++) {
-                if (keccak256(bytes(filenames[j])) == keccak256(bytes(_pathSegments[i]))) {
-                    found = true;
-                    inodeChecksum = directory.fileChecksums[j];
-                    inode = inodes[inodeChecksum];
-                    break;
-                }
-            }
-            if (!found) revert InodeNotFound();
         }
     }
 
