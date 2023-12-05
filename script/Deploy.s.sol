@@ -11,7 +11,6 @@ contract Deploy is Script {
                                      STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
-    address internal contentStore;
     bytes internal creationCode;
     bytes internal constructorArgs;
     bytes32 internal salt;
@@ -23,8 +22,6 @@ contract Deploy is Script {
     function setUp() public virtual {
         salt = keccak256(abi.encode("ONCHFS"));
         creationCode = type(FileSystem).creationCode;
-        contentStore = (block.chainid == 1) ? MAINNET_CONTENT_STORE : GOERLI_CONTENT_STORE;
-        constructorArgs = abi.encode(contentStore);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -33,7 +30,7 @@ contract Deploy is Script {
 
     function run() public virtual {
         vm.startBroadcast();
-        _deployCreate2(creationCode, constructorArgs, salt);
+        _deployCreate2(creationCode, salt);
         vm.stopBroadcast();
     }
 

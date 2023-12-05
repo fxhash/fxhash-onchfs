@@ -40,7 +40,7 @@ contract FileSystemTest is Test {
     function setUp() public virtual {
         contentStore = GOERLI_CONTENT_STORE;
         vm.etch(contentStore, CONTENT_STORE_BYTE_CODE);
-        fileSystem = new FileSystem(contentStore);
+        fileSystem = new FileSystem();
         metadata = "file metadata";
         fileContent = bytes("asdf");
         (checksum, ) = IContentStore(contentStore).addContent(fileContent);

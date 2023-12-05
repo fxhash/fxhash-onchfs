@@ -35,8 +35,8 @@ contract FileSystem is IFileSystem {
     /**
      * @dev Initializes the ContentStore contract
      */
-    constructor(address _contentStore) {
-        contentStore = _contentStore;
+    constructor() {
+        contentStore = (block.chainid == 1) ? MAINNET_CONTENT_STORE : GOERLI_CONTENT_STORE;
     }
 
     /*//////////////////////////////////////////////////////////////////////////

@@ -110,9 +110,9 @@ interface IFileSystem {
     ) external returns (bytes32 fileChecksum);
 
     /**
-     * @notice Gets inode within list of path segments
-     * @param _inodeChecksum Checksum value of inode
-     * @param _pathSegments List of path segments
+     * @notice Traverses a directory and returns an inode
+     * @param _inodeChecksum Checksum value of the inode
+     * @param _pathSegments List of path segments being traversed
      */
     function getInodeAt(
         bytes32 _inodeChecksum,
