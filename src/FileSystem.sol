@@ -21,7 +21,7 @@ contract FileSystem is IFileSystem {
     /**
      * @inheritdoc IFileSystem
      */
-    address public immutable contentStore;
+    address public immutable CONTENT_STORE;
 
     /**
      * @inheritdoc IFileSystem
@@ -36,7 +36,7 @@ contract FileSystem is IFileSystem {
      * @dev Initializes the ContentStore contract
      */
     constructor() {
-        contentStore = (block.chainid == 1) ? MAINNET_CONTENT_STORE : GOERLI_CONTENT_STORE;
+        CONTENT_STORE = (block.chainid == 1) ? MAINNET_CONTENT_STORE : GOERLI_CONTENT_STORE;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -70,7 +70,7 @@ contract FileSystem is IFileSystem {
         bytes32[] calldata _chunkPointers
     ) external returns (bytes32 fileChecksum) {
         for (uint256 i; i < _chunkPointers.length; i++) {
-            if (!IContentStore(contentStore).checksumExists(_chunkPointers[i])) revert ChunkNotFound();
+            if (!IContentStore(CONTENT_STORE).checksumExists(_chunkPointers[i])) revert ChunkNotFound();
         }
         fileChecksum = keccak256(
             bytes.concat(
@@ -147,7 +147,7 @@ contract FileSystem is IFileSystem {
         address pointer;
         bytes memory chunkContent;
         for (uint256 i; i < _pointers.length; i++) {
-            pointer = IContentStore(contentStore).getPointer(_pointers[i]);
+            pointer = IContentStore(CONTENT_STORE).getPointer(_pointers[i]);
             chunkContent = SSTORE2.read(pointer);
             fileContent = abi.encodePacked(fileContent, chunkContent);
         }

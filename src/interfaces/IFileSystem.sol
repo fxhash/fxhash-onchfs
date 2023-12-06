@@ -87,7 +87,7 @@ interface IFileSystem {
     /**
      * @notice Returns the address of the ContentStore contract
      */
-    function contentStore() external view returns (address);
+    function CONTENT_STORE() external view returns (address);
 
     /**
      * @notice Creates a new directory with the given names and file inode pointers
