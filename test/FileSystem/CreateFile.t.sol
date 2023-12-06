@@ -4,16 +4,8 @@ pragma solidity 0.8.23;
 import "test/FileSystem/FileSystemTest.t.sol";
 
 contract CreateFile is FileSystemTest {
-    bytes internal metadata;
-    bytes internal fileContent;
-    bytes32[] internal chunkChecksums;
-
     function setUp() public override {
         super.setUp();
-        metadata = "file metadata";
-        fileContent = bytes("asdf");
-        (bytes32 checksum, ) = IContentStore(contentStore).addContent(fileContent);
-        chunkChecksums.push(checksum);
     }
 
     function test_CreateFile() public {

@@ -8,15 +8,35 @@ import "script/utils/Constants.sol";
 
 contract Deploy is Script {
     /*//////////////////////////////////////////////////////////////////////////
+                                     STORAGE
+    //////////////////////////////////////////////////////////////////////////*/
+
+    bytes internal creationCode;
+    bytes internal constructorArgs;
+    bytes32 internal salt;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                     SETUP
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function setUp() public virtual {
+        salt = keccak256(abi.encode("ONCHFS"));
+        creationCode = type(FileSystem).creationCode;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                                       RUN
     //////////////////////////////////////////////////////////////////////////*/
+
     function run() public virtual {
-        bytes32 salt = keccak256(abi.encode("ONCHFS"));
-        bytes memory creationCode = type(FileSystem).creationCode;
         vm.startBroadcast();
         _deployCreate2(creationCode, salt);
         vm.stopBroadcast();
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    CREATE2
+    //////////////////////////////////////////////////////////////////////////*/
 
     function _deployCreate2(bytes memory _creationCode, bytes32 _salt) internal returns (address deployedAddr) {
         deployedAddr = _deployCreate2(_creationCode, bytes(""), _salt);
